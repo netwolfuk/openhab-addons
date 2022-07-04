@@ -15,6 +15,7 @@
 /bundles/org.openhab.binding.ahawastecollection/ @soenkekueper
 /bundles/org.openhab.binding.airq/ @aurelio1
 /bundles/org.openhab.binding.airquality/ @kubawolanin
+/bundles/org.openhab.binding.airtouch4/ @netwolfuk
 /bundles/org.openhab.binding.airvisualnode/ @3cky
 /bundles/org.openhab.binding.alarmdecoder/ @bobadair @billfor
 /bundles/org.openhab.binding.allplay/ @dominicdesu
