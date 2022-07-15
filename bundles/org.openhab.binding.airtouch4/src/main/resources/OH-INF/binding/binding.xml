@@ -4,6 +4,6 @@
 	xsi:schemaLocation="https://openhab.org/schemas/binding/v1.0.0 https://openhab.org/schemas/binding-1.0.0.xsd">
 
 	<name>AirTouch4 Binding</name>
-	<description>This is the binding for AirTouch4.</description>
+	<description>This is the binding for the PolyAire AirTouch4 air-conditioning controller.</description>
 
 </binding:binding>
