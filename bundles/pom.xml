@@ -82,7 +82,7 @@
     <module>org.openhab.binding.airq</module>
         
     <module>org.openhab.binding.airquality</module>
-    <module>org.openhab.binding.airtouch4</module>
+    <module>org.openhab.binding.airtouch</module>
         
     <module>org.openhab.binding.airvisualnode</module>
         

@@ -10,13 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.airtouch4.internal.handler;
+package org.openhab.binding.airtouch.internal.handler;
 
-import static org.openhab.binding.airtouch4.internal.AirTouch4BindingConstants.*;
+import static org.openhab.binding.airtouch.internal.AirTouch4BindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.airtouch4.internal.AirTouch4Configuration;
+import org.openhab.binding.airtouch.internal.AirTouchConfiguration;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
@@ -27,19 +27,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link AirTouch4BridgeHandler} is responsible for handling commands, which are
+ * The {@link AirTouch4ZoneHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
  * @author Nathaniel Wolfe - Initial contribution
  */
 @NonNullByDefault
-public class AirTouch4BridgeHandler extends BaseThingHandler {
+public class AirTouchZoneHandler extends BaseThingHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(AirTouch4BridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(AirTouchZoneHandler.class);
 
-    private @Nullable AirTouch4Configuration config;
+    private @Nullable AirTouchConfiguration config;
 
-    public AirTouch4BridgeHandler(Thing thing) {
+    public AirTouchZoneHandler(Thing thing) {
         super(thing);
     }
 
@@ -61,7 +61,7 @@ public class AirTouch4BridgeHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        config = getConfigAs(AirTouch4Configuration.class);
+        config = getConfigAs(AirTouchConfiguration.class);
 
         // TODO: Initialize the handler.
         // The framework requires you to return from this method quickly, i.e. any network access must be done in

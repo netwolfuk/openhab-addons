@@ -8,12 +8,12 @@
 	<thing-type id="sample">
 		<!-- Comment this in for Things which need a Bridge to function.
 			<supported-bridge-type-refs>
-			<bridge-type-ref id="AirTouch4Bridge" />
+			<bridge-type-ref id="AirTouchBridge" />
 			</supported-bridge-type-refs>
 		-->
 
-		<label>AirTouch4 Binding Thing</label>
-		<description>Sample thing for AirTouch4 Binding</description>
+		<label>AirTouch Binding Thing</label>
+		<description>Sample thing for AirTouch Binding</description>
 
 		<channels>
 			<channel id="channel1" typeId="sample-channel"/>
@@ -43,6 +43,6 @@
 	<channel-type id="sample-channel">
 		<item-type>Number:Temperature</item-type>
 		<label>Example Temperature</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
-		<description>Sample channel for AirTouch4 Binding</description>
+		<description>Sample channel for AirTouch Binding</description>
 	</channel-type>
 </thing:thing-descriptions>

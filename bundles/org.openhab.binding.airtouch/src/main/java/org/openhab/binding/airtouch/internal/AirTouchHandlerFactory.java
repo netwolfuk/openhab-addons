@@ -10,15 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.airtouch4.internal;
+package org.openhab.binding.airtouch.internal;
 
-import static org.openhab.binding.airtouch4.internal.AirTouch4BindingConstants.*;
+import static org.openhab.binding.airtouch.internal.AirTouch4BindingConstants.*;
 
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.airtouch4.internal.handler.AirTouch4AirConditionerHandler;
+import org.openhab.binding.airtouch.internal.handler.AirTouchAirConditionerHandler;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @NonNullByDefault
 @Component(configurationPid = "binding.airtouch4", service = ThingHandlerFactory.class)
-public class AirTouch4HandlerFactory extends BaseThingHandlerFactory {
+public class AirTouchHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(BRIDGE_THING_TYPE,
             AIR_CONDITIONER_THING_TYPE, ZONE_THING_TYPE);
@@ -49,7 +49,7 @@ public class AirTouch4HandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (AIR_CONDITIONER_THING_TYPE.equals(thingTypeUID)) {
-            return new AirTouch4AirConditionerHandler(thing);
+            return new AirTouchAirConditionerHandler(thing);
         }
 
         return null;
