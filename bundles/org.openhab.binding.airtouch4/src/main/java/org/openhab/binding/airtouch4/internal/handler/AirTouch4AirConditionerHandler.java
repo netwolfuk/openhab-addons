@@ -10,12 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.airtouch4.internal;
+package org.openhab.binding.airtouch4.internal.handler;
 
 import static org.openhab.binding.airtouch4.internal.AirTouch4BindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.airtouch4.internal.AirTouch4Configuration;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
@@ -26,25 +27,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link AirTouch4Handler} is responsible for handling commands, which are
+ * The {@link AirTouch4AirConditionerHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
  * @author Nathaniel Wolfe - Initial contribution
  */
 @NonNullByDefault
-public class AirTouch4Handler extends BaseThingHandler {
+public class AirTouch4AirConditionerHandler extends BaseThingHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(AirTouch4Handler.class);
+    private final Logger logger = LoggerFactory.getLogger(AirTouch4AirConditionerHandler.class);
 
     private @Nullable AirTouch4Configuration config;
 
-    public AirTouch4Handler(Thing thing) {
+    public AirTouch4AirConditionerHandler(Thing thing) {
         super(thing);
     }
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (CHANNEL_1.equals(channelUID.getId())) {
+        if (AC_POWER_CHANNEL.equals(channelUID.getId())) {
             if (command instanceof RefreshType) {
                 // TODO: handle data refresh
             }

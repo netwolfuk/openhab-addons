@@ -27,8 +27,12 @@ public class AirTouch4BindingConstants {
     private static final String BINDING_ID = "airtouch4";
 
     // List of all Thing Type UIDs
-    public static final ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "sample");
+    public static final ThingTypeUID BRIDGE_THING_TYPE = new ThingTypeUID(BINDING_ID, "bridge");
+
+    public static final ThingTypeUID AIR_CONDITIONER_THING_TYPE = new ThingTypeUID(BINDING_ID, "air-conditioner");
+    public static final ThingTypeUID ZONE_THING_TYPE = new ThingTypeUID(BINDING_ID, "zone");
 
     // List of all Channel ids
-    public static final String CHANNEL_1 = "channel1";
+    public static final String AC_POWER_CHANNEL = "ac-power";
+    public static final String ZONE_POWER_CHANNEL = "zone-power";
 }
