@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.airtouch4.internal.handler.AirTouch4AirConditionerHandler;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
@@ -35,7 +36,8 @@ import org.osgi.service.component.annotations.Component;
 @Component(configurationPid = "binding.airtouch4", service = ThingHandlerFactory.class)
 public class AirTouch4HandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_SAMPLE);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(BRIDGE_THING_TYPE,
+            AIR_CONDITIONER_THING_TYPE, ZONE_THING_TYPE);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -46,8 +48,8 @@ public class AirTouch4HandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (THING_TYPE_SAMPLE.equals(thingTypeUID)) {
-            return new AirTouch4Handler(thing);
+        if (AIR_CONDITIONER_THING_TYPE.equals(thingTypeUID)) {
+            return new AirTouch4AirConditionerHandler(thing);
         }
 
         return null;
