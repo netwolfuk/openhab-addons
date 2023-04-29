@@ -12,14 +12,16 @@
  */
 package org.openhab.binding.airtouch.internal.handler;
 
-import static org.openhab.binding.airtouch.internal.AirTouch4BindingConstants.*;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.airtouch.internal.AirTouchConfiguration;
+import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
@@ -33,14 +35,14 @@ import org.slf4j.LoggerFactory;
  * @author Nathaniel Wolfe - Initial contribution
  */
 @NonNullByDefault
-public class AirTouchBridgeHandler extends BaseThingHandler {
+public class AirTouch4BridgeHandler extends BaseBridgeHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(AirTouchBridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(AirTouch4BridgeHandler.class);
 
     private @Nullable AirTouchConfiguration config;
 
-    public AirTouchBridgeHandler(Thing thing) {
-        super(thing);
+    public AirTouch4BridgeHandler(Bridge bridge) {
+        super(bridge);
     }
 
     @Override

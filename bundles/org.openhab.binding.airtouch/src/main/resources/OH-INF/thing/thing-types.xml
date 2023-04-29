@@ -6,11 +6,9 @@
 
 	<!-- Sample Thing Type -->
 	<thing-type id="sample">
-		<!-- Comment this in for Things which need a Bridge to function.
-			<supported-bridge-type-refs>
+		<supported-bridge-type-refs>
 			<bridge-type-ref id="AirTouchBridge" />
-			</supported-bridge-type-refs>
-		-->
+		</supported-bridge-type-refs>
 
 		<label>AirTouch Binding Thing</label>
 		<description>Sample thing for AirTouch Binding</description>
@@ -25,15 +23,22 @@
 				<label>Hostname</label>
 				<description>Hostname or IP address of the device</description>
 			</parameter>
-			<parameter name="password" type="text" required="true">
-				<context>password</context>
-				<label>Password</label>
-				<description>Password to access the device</description>
+			<parameter name="port" type="integer" required="true">
+				<context>port</context>
+				<label>Port</label>
+				<description>Port to connect to the device</description>
+				<default>9004</default>
 			</parameter>
 			<parameter name="refreshInterval" type="integer" unit="s" min="1">
 				<label>Refresh Interval</label>
 				<description>Interval the device is polled in sec.</description>
-				<default>600</default>
+				<default>60</default>
+				<advanced>true</advanced>
+			</parameter>
+			<parameter name="airTouchVersion" type="integer" min="4" max="5">
+				<label>Airtouch Version</label>
+				<description>The version of Airtouch installed, eg 4 or 5</description>
+				<default>4</default>
 				<advanced>true</advanced>
 			</parameter>
 		</config-description>
