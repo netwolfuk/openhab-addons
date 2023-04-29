@@ -12,13 +12,15 @@
  */
 package org.openhab.binding.airtouch.internal;
 
-import static org.openhab.binding.airtouch.internal.AirTouch4BindingConstants.*;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.*;
 
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.airtouch.internal.handler.AirTouch4BridgeHandler;
 import org.openhab.binding.airtouch.internal.handler.AirTouchAirConditionerHandler;
+import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
@@ -36,8 +38,7 @@ import org.osgi.service.component.annotations.Component;
 @Component(configurationPid = "binding.airtouch4", service = ThingHandlerFactory.class)
 public class AirTouchHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(BRIDGE_THING_TYPE,
-            AIR_CONDITIONER_THING_TYPE, ZONE_THING_TYPE);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(BRIDGEV4_THING_TYPE, AIR_CONDITIONER_THINGV4_TYPE);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -48,7 +49,9 @@ public class AirTouchHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (AIR_CONDITIONER_THING_TYPE.equals(thingTypeUID)) {
+        if (BRIDGEV4_THING_TYPE.equals(thingTypeUID)) {
+            return new AirTouch4BridgeHandler((Bridge)thing);
+        } else if (AIR_CONDITIONER_THINGV4_TYPE.equals(thingTypeUID)) {
             return new AirTouchAirConditionerHandler(thing);
         }
 

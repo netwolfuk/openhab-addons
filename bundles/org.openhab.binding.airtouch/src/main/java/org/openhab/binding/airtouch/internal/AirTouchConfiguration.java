@@ -13,6 +13,7 @@
 package org.openhab.binding.airtouch.internal;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * The {@link AirTouch4Configuration} class contains fields mapping thing configuration parameters.
@@ -25,7 +26,10 @@ public class AirTouchConfiguration {
     /**
      * Sample configuration parameters. Replace with your own.
      */
-    public String hostname = "";
-    public String password = "";
-    public int refreshInterval = 600;
+	@Nullable
+    public String hostname;
+    public int refreshInterval;
+    public int airTouchPort;
+    public int airTouchVersion;
+
 }

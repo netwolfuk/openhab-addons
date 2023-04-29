@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.airtouch.internal.handler;
 
-import static org.openhab.binding.airtouch.internal.AirTouch4BindingConstants.*;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
