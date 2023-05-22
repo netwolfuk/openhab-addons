@@ -24,16 +24,17 @@ import org.openhab.core.thing.ThingTypeUID;
 @NonNullByDefault
 public class AirTouchBindingConstants {
 
-    private static final String BINDING_ID = "airtouch4";
+    private static final String BINDING_ID = "airtouch";
+    public static final String AIRTOUCH4_CONTROLLER = "airtouch4-controller";
 
     // List of all Thing Type UIDs
-    public static final ThingTypeUID BRIDGEV4_THING_TYPE = new ThingTypeUID(BINDING_ID, "bridgev4");
-    public static final ThingTypeUID BRIDGEV5_THING_TYPE = new ThingTypeUID(BINDING_ID, "bridgev5");
-
-    public static final ThingTypeUID AIR_CONDITIONER_THINGV4_TYPE = new ThingTypeUID(BINDING_ID, "air-conditioner-v4");
-    public static final ThingTypeUID AIR_CONDITIONER_THINGV5_TYPE = new ThingTypeUID(BINDING_ID, "air-conditioner-v5");
+    public static final ThingTypeUID AIRTOUCH4_CONTROLLER_THING_TYPE = new ThingTypeUID(BINDING_ID,
+            AIRTOUCH4_CONTROLLER);
 
     // List of all Channel ids
     public static final String AC_POWER_CHANNEL = "ac-power";
     public static final String ZONE_POWER_CHANNEL = "zone-power";
+
+    public static final int DISCOVERY_SCAN_TIMEOUT_SECONDS = 30;
+    public static final String AIRTOUCH_ID = "AirTouchConsoleId";
 }

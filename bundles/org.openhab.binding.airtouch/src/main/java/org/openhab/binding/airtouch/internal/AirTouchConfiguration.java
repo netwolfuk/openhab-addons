@@ -16,7 +16,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * The {@link AirTouch4Configuration} class contains fields mapping thing configuration parameters.
+ * The {@link AirTouchConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Nathaniel Wolfe - Initial contribution
  */
@@ -26,10 +26,8 @@ public class AirTouchConfiguration {
     /**
      * Sample configuration parameters. Replace with your own.
      */
-	@Nullable
-    public String hostname;
-    public int refreshInterval;
-    public int airTouchPort;
-    public int airTouchVersion;
-
+    @Nullable
+    public String host;
+    public int port;
+    public int refreshInterval = 60;
 }

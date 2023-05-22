@@ -5,10 +5,7 @@
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
 	<!-- Sample Thing Type -->
-	<thing-type id="sample">
-		<supported-bridge-type-refs>
-			<bridge-type-ref id="AirTouchBridge" />
-		</supported-bridge-type-refs>
+	<thing-type id="airtouch4-controller">
 
 		<label>AirTouch Binding Thing</label>
 		<description>Sample thing for AirTouch Binding</description>
@@ -17,31 +14,7 @@
 			<channel id="channel1" typeId="sample-channel"/>
 		</channels>
 
-		<config-description>
-			<parameter name="hostname" type="text" required="true">
-				<context>network-address</context>
-				<label>Hostname</label>
-				<description>Hostname or IP address of the device</description>
-			</parameter>
-			<parameter name="port" type="integer" required="true">
-				<context>port</context>
-				<label>Port</label>
-				<description>Port to connect to the device</description>
-				<default>9004</default>
-			</parameter>
-			<parameter name="refreshInterval" type="integer" unit="s" min="1">
-				<label>Refresh Interval</label>
-				<description>Interval the device is polled in sec.</description>
-				<default>60</default>
-				<advanced>true</advanced>
-			</parameter>
-			<parameter name="airTouchVersion" type="integer" min="4" max="5">
-				<label>Airtouch Version</label>
-				<description>The version of Airtouch installed, eg 4 or 5</description>
-				<default>4</default>
-				<advanced>true</advanced>
-			</parameter>
-		</config-description>
+		<config-description-ref uri="thing-type:airtouch:config"/>
 	</thing-type>
 
 	<!-- Sample Channel Type -->
