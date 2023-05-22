@@ -14,12 +14,19 @@ package org.openhab.binding.airtouch.internal.handler;
 
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.*;
 
+import java.util.Collection;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.airtouch.internal.AirTouchConfiguration;
+import org.openhab.core.config.discovery.DiscoveryListener;
+import org.openhab.core.config.discovery.DiscoveryResult;
+import org.openhab.core.config.discovery.DiscoveryService;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
@@ -27,19 +34,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link AirTouchAirConditionerHandler} is responsible for handling commands, which are
+ * The {@link AirTouch4Handler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
  * @author Nathaniel Wolfe - Initial contribution
  */
 @NonNullByDefault
-public class AirTouchAirConditionerHandler extends BaseThingHandler {
+public class AirTouch4Handler extends BaseThingHandler implements DiscoveryListener {
 
-    private final Logger logger = LoggerFactory.getLogger(AirTouchAirConditionerHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(AirTouch4Handler.class);
 
     private @Nullable AirTouchConfiguration config;
 
-    public AirTouchAirConditionerHandler(Thing thing) {
+    public AirTouch4Handler(Thing thing) {
         super(thing);
     }
 
@@ -61,7 +68,9 @@ public class AirTouchAirConditionerHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
+        logger.debug("Starting up");
         config = getConfigAs(AirTouchConfiguration.class);
+        logger.debug("Using configuration: {}", config);
 
         // TODO: Initialize the handler.
         // The framework requires you to return from this method quickly, i.e. any network access must be done in
@@ -101,5 +110,25 @@ public class AirTouchAirConditionerHandler extends BaseThingHandler {
         // Add a description to give user information to understand why thing does not work as expected. E.g.
         // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
         // "Can not access device as username and/or password are invalid");
+    }
+
+    @Override
+    public void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
+        // TODO Auto-generated method stub
+        logger.info("thingDiscovered: {}", result.getRepresentationProperty());
+    }
+
+    @Override
+    public void thingRemoved(DiscoveryService source, ThingUID thingUID) {
+        logger.info("thingRemoved: {}", thingUID);
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public @Nullable Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
+            @Nullable Collection<ThingTypeUID> thingTypeUIDs, @Nullable ThingUID bridgeUID) {
+        logger.info("removeOlderResults: {}", thingTypeUIDs.toString());
+        // TODO Auto-generated method stub
+        return null;
     }
 }

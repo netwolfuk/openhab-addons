@@ -18,15 +18,15 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.airtouch.internal.handler.AirTouch4BridgeHandler;
-import org.openhab.binding.airtouch.internal.handler.AirTouchAirConditionerHandler;
-import org.openhab.core.thing.Bridge;
+import org.openhab.binding.airtouch.internal.handler.AirTouch4Handler;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
 import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link AirTouch4HandlerFactory} is responsible for creating things and thing
@@ -35,26 +35,30 @@ import org.osgi.service.component.annotations.Component;
  * @author Nathaniel Wolfe - Initial contribution
  */
 @NonNullByDefault
-@Component(configurationPid = "binding.airtouch4", service = ThingHandlerFactory.class)
+@Component(configurationPid = "binding.airtouch", service = ThingHandlerFactory.class)
 public class AirTouchHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(BRIDGEV4_THING_TYPE, AIR_CONDITIONER_THINGV4_TYPE);
+    private final Logger logger = LoggerFactory.getLogger(AirTouchHandlerFactory.class);
+
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(AIRTOUCH4_CONTROLLER_THING_TYPE);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+        logger.debug("I am being asked if I support '{}'", thingTypeUID);
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
     @Override
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
+        logger.debug("ThingHandler called with thing '{}'", thing.getThingTypeUID());
 
-        if (BRIDGEV4_THING_TYPE.equals(thingTypeUID)) {
-            return new AirTouch4BridgeHandler((Bridge)thing);
-        } else if (AIR_CONDITIONER_THINGV4_TYPE.equals(thingTypeUID)) {
-            return new AirTouchAirConditionerHandler(thing);
+        if (AIRTOUCH4_CONTROLLER_THING_TYPE.equals(thingTypeUID)) {
+            logger.debug("Creating AirTouchAirConditionerHandler for '{}'", thing.getThingTypeUID());
+            return new AirTouch4Handler(thing);
         }
 
+        logger.debug("Returning null for '{}'", thing.getThingTypeUID());
         return null;
     }
 }
