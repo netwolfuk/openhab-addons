@@ -1,7 +1,13 @@
 package org.openhab.binding.airtouch.internal.discovery;
 
-import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.AIRTOUCH4_CONTROLLER;
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.AIRTOUCH4_CONTROLLER_THING_TYPE;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.PROPERTY_AIRTOUCH_HOST;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.PROPERTY_AIRTOUCH_ID;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.PROPERTY_AIRTOUCH_MAC_ADDRESS;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.PROPERTY_AIRTOUCH_PORT;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.PROPERTY_AIRTOUCH_REFRESH_INTERVAL;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.PROPERTY_AIRTOUCH_UID;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.PROPERTY_AIRTOUCH_VERSION;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,20 +27,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import airtouch.AirtouchVersion;
-import airtouch.discovery.AirtouchBroadcaster;
-import airtouch.discovery.BroadcastResponseCallback;
+import airtouch.discovery.AirtouchDiscoverer;
+import airtouch.discovery.AirtouchDiscoveryBroadcastResponseCallback;
 
 @Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.airtouch")
 @NonNullByDefault
-public class AirTouchDiscoveryService extends AbstractDiscoveryService implements BroadcastResponseCallback {
+public class AirTouchDiscoveryService extends AbstractDiscoveryService
+        implements AirtouchDiscoveryBroadcastResponseCallback {
 
     private final Logger logger = LoggerFactory.getLogger(AirTouchDiscoveryService.class);
-    private AirtouchBroadcaster airtouch4Broadcaster;
+    private AirtouchDiscoverer airtouch4Broadcaster;
     private @Nullable AirTouch4Handler airTouchAirConditionerHandler;
 
     public AirTouchDiscoveryService() {
         super(Set.of(AIRTOUCH4_CONTROLLER_THING_TYPE), AirTouchBindingConstants.DISCOVERY_SCAN_TIMEOUT_SECONDS, false);
-        airtouch4Broadcaster = new AirtouchBroadcaster(AirtouchVersion.AIRTOUCH4, this);
+        airtouch4Broadcaster = new AirtouchDiscoverer(AirtouchVersion.AIRTOUCH4, this);
     }
 
     @Override
@@ -49,36 +56,34 @@ public class AirTouchDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    public void handleResponse(@Nullable BroadcastResponse response) {
+    public void handleResponse(@Nullable AirtouchDiscoveryBroadcastResponse response) {
         onAirtouchFoundInternal(response);
     }
 
-    private void onAirtouchFoundInternal(@Nullable BroadcastResponse airtouch) {
+    private void onAirtouchFoundInternal(@Nullable AirtouchDiscoveryBroadcastResponse airtouch) {
         if (airtouch != null) {
             logger.info("Found '{}' at '{}' with id '{}'", airtouch.getAirtouchVersion(), airtouch.getHostAddress(),
                     airtouch.getAirtouchId());
             ThingUID thingUID = getThingUID(airtouch);
+            logger.info("ThingUID is: '{}'", thingUID);
             Map<String, Object> properties = new HashMap<>(1);
-            properties.put(AirTouchBindingConstants.AIRTOUCH_ID, airtouch.getAirtouchId());
-            properties.put("host", airtouch.getHostAddress());
-            properties.put("port", airtouch.getPortNumber());
-            properties.put("airTouchVersion", airtouch.getAirtouchVersion().getVersionIdentifier());
-            properties.put("airTouchMacAddress", airtouch.getMacAddress());
-            properties.put("airTouchIdentifier", airtouch.getAirtouchId());
-            properties.put("refreshInterval", 60);
-            properties.put("airTouchUid", airtouch.getMacAddress().replace(":", "").toLowerCase());
+            properties.put(PROPERTY_AIRTOUCH_ID, airtouch.getAirtouchId());
+            properties.put(PROPERTY_AIRTOUCH_HOST, airtouch.getHostAddress());
+            properties.put(PROPERTY_AIRTOUCH_PORT, airtouch.getPortNumber());
+            properties.put(PROPERTY_AIRTOUCH_REFRESH_INTERVAL, 60);
+            properties.put(PROPERTY_AIRTOUCH_VERSION, airtouch.getAirtouchVersion().getVersionIdentifier());
+            properties.put(PROPERTY_AIRTOUCH_MAC_ADDRESS, airtouch.getMacAddress());
+            properties.put(PROPERTY_AIRTOUCH_UID, airtouch.getMacAddress().replace(":", "").toLowerCase());
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withProperties(properties)
                     .withThingType(AIRTOUCH4_CONTROLLER_THING_TYPE)
-                    .withLabel(airtouch.getAirtouchVersion().getVersionIdentifier()).withRepresentationProperty("host")
-                    .build();
+                    .withLabel(airtouch.getAirtouchVersion().getVersionIdentifier())
+                    .withRepresentationProperty(PROPERTY_AIRTOUCH_HOST).build();
             thingDiscovered(discoveryResult);
-        } else {
-            // logger.debug("discovered unsupported light of type '{}' with id {}",
-            // airtouch.getAirtouchVersion().getVersionIdentifier(), airtouch.getAirtouchId());
         }
     }
 
-    private ThingUID getThingUID(BroadcastResponse airtouch) {
-        return new ThingUID(AIRTOUCH4_CONTROLLER + ":" + airtouch.getMacAddress().replace(":", "").toLowerCase());
+    private ThingUID getThingUID(AirtouchDiscoveryBroadcastResponse airtouch) {
+        return new ThingUID(AIRTOUCH4_CONTROLLER_THING_TYPE.getAsString() + ":"
+                + airtouch.getMacAddress().replace(":", "").toLowerCase());
     }
 }
