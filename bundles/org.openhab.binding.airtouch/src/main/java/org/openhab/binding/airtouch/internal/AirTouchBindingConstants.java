@@ -36,5 +36,12 @@ public class AirTouchBindingConstants {
     public static final String ZONE_POWER_CHANNEL = "zone-power";
 
     public static final int DISCOVERY_SCAN_TIMEOUT_SECONDS = 30;
-    public static final String AIRTOUCH_ID = "AirTouchConsoleId";
+
+    public static final String PROPERTY_AIRTOUCH_HOST = "host";
+    public static final String PROPERTY_AIRTOUCH_PORT = "port";
+    public static final String PROPERTY_AIRTOUCH_REFRESH_INTERVAL = "refreshInterval";
+    public static final String PROPERTY_AIRTOUCH_ID = "AirTouchConsoleId";
+    public static final String PROPERTY_AIRTOUCH_UID = "AirTouchUid";
+    public static final String PROPERTY_AIRTOUCH_MAC_ADDRESS = "AirTouchMacAddress";
+    public static final String PROPERTY_AIRTOUCH_VERSION = "AirTouchVersion";
 }
