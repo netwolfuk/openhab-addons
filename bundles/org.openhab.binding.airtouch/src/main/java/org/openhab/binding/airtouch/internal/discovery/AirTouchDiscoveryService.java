@@ -79,6 +79,7 @@ public class AirTouchDiscoveryService extends AbstractDiscoveryService
                     .withLabel(airtouch.getAirtouchVersion().getVersionIdentifier())
                     .withRepresentationProperty(PROPERTY_AIRTOUCH_HOST).build();
             thingDiscovered(discoveryResult);
+            stopScan();
         }
     }
 

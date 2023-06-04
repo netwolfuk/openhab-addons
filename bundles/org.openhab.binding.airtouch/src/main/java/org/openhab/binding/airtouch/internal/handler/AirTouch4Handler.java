@@ -18,16 +18,28 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.airtouch.internal.AirTouchBindingConstants;
 import org.openhab.binding.airtouch.internal.AirTouchConfiguration;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.PercentType;
+import org.openhab.core.thing.Channel;
+import org.openhab.core.thing.ChannelGroupUID;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.thing.binding.builder.ChannelBuilder;
+import org.openhab.core.thing.binding.builder.ThingBuilder;
+import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
@@ -36,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import airtouch.v4.Response;
 import airtouch.v4.ResponseCallback;
 import airtouch.v4.connector.AirtouchConnector;
+import airtouch.v4.constant.AcStatusConstants.PowerState;
 import airtouch.v4.handler.AirConditionerAbilityHandler;
 import airtouch.v4.handler.AirConditionerStatusHandler;
 import airtouch.v4.handler.ConsoleVersionHandler;
@@ -62,6 +75,9 @@ public class AirTouch4Handler extends BaseThingHandler {
     private AirtouchStatus status = new AirtouchStatus();
     private Map<Integer, Boolean> responseReceived = new HashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
+    private AtomicBoolean gotConfigFromAirtouch = new AtomicBoolean(false);
+
+    private @Nullable ScheduledFuture<?> future;
 
     public AirTouch4Handler(Thing thing) {
         super(thing);
@@ -116,7 +132,10 @@ public class AirTouch4Handler extends BaseThingHandler {
             try {
                 requestUpdate();
             } catch (IOException e) {
-                logger.warn(e.getLocalizedMessage(), e);
+                logger.warn("Exception occured requesting AirTouch update: {}. Attempting to restart service.",
+                        e.getMessage());
+                this.airtouchConnector.shutdown();
+                this.airtouchConnector.start();
             }
 
         });
@@ -154,6 +173,99 @@ public class AirTouch4Handler extends BaseThingHandler {
         return status;
     }
 
+    protected void thingStructureChanged(AirtouchStatus airtouchStatus) {
+        logger.debug("Updating thing structure");
+        ThingBuilder thingBuilder = editThing();
+        airtouchStatus.getAcAbilities().values().forEach(ac -> {
+            logger.info("Attmpting to add found ac {}", ac);
+            ChannelGroupUID channelGroupUID = new ChannelGroupUID(
+                    this.getThing().getUID() + ":ac-unit-" + ac.getAcNumber());
+            logger.info("ChannelGroupUID: '{}'", channelGroupUID.getAsString());
+
+            Channel channelUnitPower = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, "airconditioner-unit-power"))
+                    .withLabel(String.format("AC Unit Power - %s (%s)", ac.getAcName(), ac.getAcNumber()))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID, "airconditioner-unit-power"))
+                    .build();
+            thingBuilder.withChannel(channelUnitPower);
+            logger.trace("Added channel: '{}'", channelUnitPower.getLabel());
+
+            Channel channelUnitSetPoint = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, "airconditioner-unit-setpoint"))
+                    .withLabel(String.format("AC Unit Setpoint - %s (%s)", ac.getAcName(), ac.getAcNumber()))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID, "airconditioner-unit-setpoint"))
+                    .build();
+            thingBuilder.withChannel(channelUnitSetPoint);
+            logger.trace("Added channel: '{}'", channelUnitSetPoint.getLabel());
+
+            Channel channelUnitTemperature = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, "airconditioner-unit-temperature"))
+                    .withLabel(String.format("AC Unit Temperature - %s (%s)", ac.getAcName(), ac.getAcNumber()))
+                    .withType(
+                            new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID, "airconditioner-unit-temperature"))
+                    .build();
+            thingBuilder.withChannel(channelUnitTemperature);
+            logger.trace("Added channel: '{}'", channelUnitTemperature.getLabel());
+
+        });
+
+        airtouchStatus.getGroupNames().forEach((zoneId, zoneName) -> {
+            logger.info("Attmpting to add found zone {}", zoneName);
+            ChannelGroupUID channelGroupUID = new ChannelGroupUID(this.getThing().getUID() + ":ac-zone-" + zoneId);
+            logger.info("ChannelGroupUID: '{}'", channelGroupUID.getAsString());
+
+            Channel channelZoneSetpoint = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, "airconditioner-zone-setpoint"))
+                    .withLabel(String.format("Zone Setpoint - %s", zoneName))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID, "airconditioner-zone-setpoint"))
+                    .build();
+            thingBuilder.withChannel(channelZoneSetpoint);
+            logger.trace("Added channel: '{}'", channelZoneSetpoint.getLabel());
+
+            if (airtouchStatus.getGroupStatuses().get(zoneId).hasSensor()) {
+                Channel channelZoneTemperature = ChannelBuilder
+                        .create(new ChannelUID(channelGroupUID, "airconditioner-zone-temperature"))
+                        .withLabel(String.format("Zone Temperature - %s", zoneName))
+                        .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID,
+                                "airconditioner-zone-temperature"))
+                        .build();
+                thingBuilder.withChannel(channelZoneTemperature);
+                logger.trace("Added channel: '{}'", channelZoneTemperature.getLabel());
+
+                Channel channelZoneBatteryLow = ChannelBuilder
+                        .create(new ChannelUID(channelGroupUID, "airconditioner-zone-battery-low"))
+                        .withLabel(String.format("Zone Battery Low Indicator  - %s", zoneName))
+                        .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID,
+                                "airconditioner-zone-battery-low"))
+                        .build();
+                thingBuilder.withChannel(channelZoneBatteryLow);
+                logger.trace("Added channel: '{}'", channelZoneBatteryLow.getLabel());
+            }
+
+            Channel channelZoneFlowPercentage = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, "airconditioner-zone-flow"))
+                    .withLabel(String.format("Zone AirFlow - %s", zoneName))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID, "airconditioner-zone-flow"))
+                    .build();
+            thingBuilder.withChannel(channelZoneFlowPercentage);
+            logger.trace("Added channel: '{}'", channelZoneFlowPercentage.getLabel());
+
+        });
+        updateThing(thingBuilder.build());
+        this.gotConfigFromAirtouch.set(true);
+        logger.trace("Scheduling AirTouch polling update every {} seconds", this.config.refreshInterval);
+        this.future = scheduler.scheduleWithFixedDelay(() -> {
+            try {
+                requestUpdate();
+            } catch (IOException e) {
+                logger.warn("Exception occured requesting AirTouch update: {}. Attempting to restart service.",
+                        e.getMessage());
+                this.airtouchConnector.shutdown();
+                this.airtouchConnector.start();
+            }
+        }, this.config.refreshInterval, this.config.refreshInterval, TimeUnit.SECONDS);
+    }
+
     private void handleEvent(@Nullable Response response) {
         if (response == null) {
             return;
@@ -188,11 +300,66 @@ public class AirTouch4Handler extends BaseThingHandler {
             this.responseReceived.put(response.getMessageId(), Boolean.TRUE);
         }
 
-        if (!this.responseReceived.containsValue(Boolean.FALSE)) {
-            logger.debug("Expected events received: {}. Sending update to listeners.", this.responseReceived);
+        if (!this.responseReceived.containsValue(Boolean.FALSE) && !this.gotConfigFromAirtouch.get()) {
+            logger.debug("Expected events received: {}. Updating thing structure.", this.responseReceived);
             // this.eventListener.eventReceived(getStatus());
+            thingStructureChanged(getStatus());
+            updatesStatuses(getStatus()); // TODO: Make this only update the items relating to the MessageType received.
+        } else if (this.gotConfigFromAirtouch.get()) {
+            updatesStatuses(getStatus());
         } else {
             logger.debug("Not all events received yet: {}", this.responseReceived);
         }
+    }
+
+    private void updatesStatuses(AirtouchStatus airtouchStatus) {
+        logger.trace("Updating thing statuses: {}", airtouchStatus);
+        airtouchStatus.getAcStatuses().forEach(ac -> {
+            ChannelGroupUID channelGroupUID = new ChannelGroupUID(
+                    this.getThing().getUID() + ":ac-unit-" + ac.getAcNumber());
+            updateState(new ChannelUID(channelGroupUID, "airconditioner-unit-power"),
+                    PowerState.ON.equals(ac.getPowerstate()) ? OnOffType.ON : OnOffType.OFF);
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-unit-power");
+
+            updateState(new ChannelUID(channelGroupUID, "airconditioner-unit-setpoint"),
+                    new DecimalType(ac.getTargetSetpoint()));
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-unit-setpoint");
+            updateState(new ChannelUID(channelGroupUID, "airconditioner-unit-temperature"),
+                    new DecimalType(ac.getCurrentTemperature()));
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-unit-temperature");
+        });
+        airtouchStatus.getGroupStatuses().forEach(zone -> {
+            ChannelGroupUID channelGroupUID = new ChannelGroupUID(
+                    this.getThing().getUID() + ":ac-zone-" + zone.getGroupNumber());
+            updateState(new ChannelUID(channelGroupUID, "airconditioner-zone-setpoint"),
+                    new DecimalType(zone.getTargetSetpoint()));
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-zone-setpoint");
+            updateState(new ChannelUID(channelGroupUID, "airconditioner-zone-flow"),
+                    new PercentType(zone.getOpenPercentage()));
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-zone-flow");
+
+            if (getStatus().getGroupStatuses().get(zone.getGroupNumber()).hasSensor()) {
+                updateState(new ChannelUID(channelGroupUID, "airconditioner-zone-temperature"),
+                        new DecimalType(zone.getCurrentTemperature()));
+                logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
+                        "airconditioner-zone-temperature");
+                updateState(new ChannelUID(channelGroupUID, "airconditioner-zone-battery-low"),
+                        Boolean.TRUE.equals(zone.isBatteryLow()) ? OnOffType.ON : OnOffType.OFF);
+                logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
+                        "airconditioner-zone-battery-low");
+            }
+        });
+    }
+
+    @Override
+    public void dispose() {
+        logger.info("Dispose called");
+        if (this.airtouchConnector.isRunning()) {
+            this.airtouchConnector.shutdown();
+        }
+        if (this.future != null && !this.future.isCancelled()) {
+            this.future.cancel(true);
+        }
+        super.dispose();
     }
 }
