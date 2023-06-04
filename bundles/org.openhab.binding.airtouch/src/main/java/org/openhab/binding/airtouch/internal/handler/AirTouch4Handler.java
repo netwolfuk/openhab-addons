@@ -36,6 +36,7 @@ import org.openhab.core.thing.ChannelGroupUID;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.thing.binding.builder.ThingBuilder;
@@ -48,10 +49,14 @@ import org.slf4j.LoggerFactory;
 import airtouch.v4.Response;
 import airtouch.v4.ResponseCallback;
 import airtouch.v4.connector.AirtouchConnector;
-import airtouch.v4.constant.AcStatusConstants.PowerState;
+import airtouch.v4.constant.AcStatusConstants;
+import airtouch.v4.constant.GroupControlConstants;
+import airtouch.v4.constant.GroupControlConstants.GroupPower;
+import airtouch.v4.constant.GroupStatusConstants;
 import airtouch.v4.handler.AirConditionerAbilityHandler;
 import airtouch.v4.handler.AirConditionerStatusHandler;
 import airtouch.v4.handler.ConsoleVersionHandler;
+import airtouch.v4.handler.GroupControlHandler;
 import airtouch.v4.handler.GroupNameHandler;
 import airtouch.v4.handler.GroupStatusHandler;
 import airtouch.v4.model.AirConditionerAbilityResponse;
@@ -85,10 +90,36 @@ public class AirTouch4Handler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (AC_POWER_CHANNEL.equals(channelUID.getId())) {
+        // airtouch:airtouch4-controller:d4d2d64c7ea4:ac-zone-0#airconditioner-zone-power
+        logger.trace("getBindingId: '{}'", channelUID.getBindingId());
+        logger.trace("getGroupId: '{}'", channelUID.getGroupId());
+        logger.trace("getIdWithoutGroup: '{}'", channelUID.getIdWithoutGroup());
+        logger.trace("getThingUID: '{}'", channelUID.getThingUID());
+        logger.trace("getId: '{}'", channelUID.getId());
+
+        /*
+         * getBindingId: 'airtouch'
+         * getGroupId: 'ac-zone-0'
+         * getIdWithoutGroup: 'airconditioner-zone-power'
+         * getThingUID: 'airtouch:airtouch4-controller:d4d2d64c7ea4'
+         * getId: 'ac-zone-0#airconditioner-zone-power'
+         */
+        try {
             if (command instanceof RefreshType) {
-                // TODO: handle data refresh
+                requestUpdate();
+            } else if (channelUID.isInGroup() && channelUID.getGroupId().startsWith("ac-unit-")) { //NOSONAR - null pointer won't be thrown because isInGroup was called.
+                handleUnitCommand(channelUID, command);
+            } else if (channelUID.isInGroup() && channelUID.getGroupId().startsWith("ac-zone-")) { //NOSONAR - null pointer won't be thrown because isInGroup was called.
+                handleZoneCommand(channelUID, command);
             }
+        } catch (IOException e) {
+            logger.warn("Exception occured requesting AirTouch update: {}. Attempting to restart service.",
+                    e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                    String.format("Error with connection  to '%s'. %s", config.host, e.getMessage()));
+            this.airtouchConnector.shutdown();
+            this.airtouchConnector.start();
+        }
 
             // TODO: handle command
 
@@ -96,7 +127,32 @@ public class AirTouch4Handler extends BaseThingHandler {
             // indicate that by setting the status with detail information:
             // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
             // "Could not control device at IP address x.x.x.x");
+        logger.trace("handleCommand called for '{}' -> '{}'", channelUID.getAsString(), command.toFullString());
+    }
+
+    private void handleUnitCommand(ChannelUID channelUID, Command command) {
+        Integer unitNumber = Integer.parseInt(channelUID.getGroupId().replace("ac-unit-", ""));
+        switch (channelUID.getIdWithoutGroup()) {
         }
+    }
+
+    private void handleZoneCommand(ChannelUID channelUID, Command command) throws IOException {
+        Integer zoneNumber = Integer.parseInt(channelUID.getGroupId().replace("ac-zone-", ""));
+        switch (channelUID.getIdWithoutGroup()) {
+            case "airconditioner-zone-power":
+                if (command instanceof OnOffType) {
+                    GroupPower zonePowerState = convertToZonePower((OnOffType) command);
+                    this.airtouchConnector
+                            .sendRequest(GroupControlHandler.requestBuilder(zoneNumber).power(zonePowerState).build(0));
+                }
+                break;
+
+        }
+    }
+
+    private GroupPower convertToZonePower(OnOffType command) {
+        return command.equals(OnOffType.ON) ? GroupControlConstants.GroupPower.POWER_ON
+                : GroupControlConstants.GroupPower.POWER_OFF; // TODO: Handle turbo
     }
 
     @Override
@@ -134,6 +190,8 @@ public class AirTouch4Handler extends BaseThingHandler {
             } catch (IOException e) {
                 logger.warn("Exception occured requesting AirTouch update: {}. Attempting to restart service.",
                         e.getMessage());
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                        String.format("Error with connection  to '%s'. %s", config.host, e.getMessage()));
                 this.airtouchConnector.shutdown();
                 this.airtouchConnector.start();
             }
@@ -213,6 +271,14 @@ public class AirTouch4Handler extends BaseThingHandler {
             logger.info("Attmpting to add found zone {}", zoneName);
             ChannelGroupUID channelGroupUID = new ChannelGroupUID(this.getThing().getUID() + ":ac-zone-" + zoneId);
             logger.info("ChannelGroupUID: '{}'", channelGroupUID.getAsString());
+
+            Channel channelZonePower = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, "airconditioner-zone-power"))
+                    .withLabel(String.format("Zone Power - %s", zoneName))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID, "airconditioner-zone-power"))
+                    .build();
+            thingBuilder.withChannel(channelZonePower);
+            logger.trace("Added channel: '{}'", channelZonePower.getLabel());
 
             Channel channelZoneSetpoint = ChannelBuilder
                     .create(new ChannelUID(channelGroupUID, "airconditioner-zone-setpoint"))
@@ -317,13 +383,15 @@ public class AirTouch4Handler extends BaseThingHandler {
         airtouchStatus.getAcStatuses().forEach(ac -> {
             ChannelGroupUID channelGroupUID = new ChannelGroupUID(
                     this.getThing().getUID() + ":ac-unit-" + ac.getAcNumber());
+
             updateState(new ChannelUID(channelGroupUID, "airconditioner-unit-power"),
-                    PowerState.ON.equals(ac.getPowerstate()) ? OnOffType.ON : OnOffType.OFF);
+                    AcStatusConstants.PowerState.ON.equals(ac.getPowerstate()) ? OnOffType.ON : OnOffType.OFF);
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-unit-power");
 
             updateState(new ChannelUID(channelGroupUID, "airconditioner-unit-setpoint"),
                     new DecimalType(ac.getTargetSetpoint()));
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-unit-setpoint");
+
             updateState(new ChannelUID(channelGroupUID, "airconditioner-unit-temperature"),
                     new DecimalType(ac.getCurrentTemperature()));
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-unit-temperature");
@@ -331,9 +399,14 @@ public class AirTouch4Handler extends BaseThingHandler {
         airtouchStatus.getGroupStatuses().forEach(zone -> {
             ChannelGroupUID channelGroupUID = new ChannelGroupUID(
                     this.getThing().getUID() + ":ac-zone-" + zone.getGroupNumber());
+            updateState(new ChannelUID(channelGroupUID, "airconditioner-zone-power"),
+                    GroupStatusConstants.PowerState.ON.equals(zone.getPowerstate()) ? OnOffType.ON : OnOffType.OFF);
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-zone-power");
+
             updateState(new ChannelUID(channelGroupUID, "airconditioner-zone-setpoint"),
                     new DecimalType(zone.getTargetSetpoint()));
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-zone-setpoint");
+
             updateState(new ChannelUID(channelGroupUID, "airconditioner-zone-flow"),
                     new PercentType(zone.getOpenPercentage()));
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(), "airconditioner-zone-flow");
@@ -343,6 +416,7 @@ public class AirTouch4Handler extends BaseThingHandler {
                         new DecimalType(zone.getCurrentTemperature()));
                 logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
                         "airconditioner-zone-temperature");
+
                 updateState(new ChannelUID(channelGroupUID, "airconditioner-zone-battery-low"),
                         Boolean.TRUE.equals(zone.isBatteryLow()) ? OnOffType.ON : OnOffType.OFF);
                 logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
