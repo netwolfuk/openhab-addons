@@ -24,7 +24,7 @@ import org.openhab.core.thing.ThingTypeUID;
 @NonNullByDefault
 public class AirTouchBindingConstants {
 
-    private static final String BINDING_ID = "airtouch";
+    public static final String BINDING_ID = "airtouch";
     public static final String AIRTOUCH4_CONTROLLER = "airtouch4-controller";
 
     // List of all Thing Type UIDs

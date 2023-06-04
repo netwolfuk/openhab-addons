@@ -56,4 +56,10 @@ public class AirtouchStatus {
     public void setConsoleVersion(ConsoleVersionResponse consoleVersion) {
         this.consoleVersion = consoleVersion;
     }
+
+    @Override
+    public String toString() {
+        return "AirtouchStatus [acStatuses=" + acStatuses + ", acAbilities=" + acAbilities + ", groupStatuses="
+                + groupStatuses + ", groupNames=" + groupNames + ", consoleVersion=" + consoleVersion + "]";
+    }
 }
