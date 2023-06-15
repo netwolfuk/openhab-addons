@@ -16,7 +16,6 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.airtouch.internal.AirTouchBindingConstants;
-import org.openhab.binding.airtouch.internal.handler.AirTouch4Handler;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
 import org.openhab.core.config.discovery.DiscoveryResult;
 import org.openhab.core.config.discovery.DiscoveryResultBuilder;
@@ -37,7 +36,6 @@ public class AirTouchDiscoveryService extends AbstractDiscoveryService
 
     private final Logger logger = LoggerFactory.getLogger(AirTouchDiscoveryService.class);
     private AirtouchDiscoverer airtouch4Broadcaster;
-    private @Nullable AirTouch4Handler airTouchAirConditionerHandler;
 
     public AirTouchDiscoveryService() {
         super(Set.of(AIRTOUCH4_CONTROLLER_THING_TYPE), AirTouchBindingConstants.DISCOVERY_SCAN_TIMEOUT_SECONDS, false);
