@@ -1,4 +1,4 @@
-package org.openhab.binding.airtouch.internal.handler;
+package org.openhab.binding.airtouch.internal.dto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ public class AirtouchStatus {
         return acStatuses;
     }
 
-    public void setAcStatuses(List<AirConditionerStatusResponse> acStatuses) {
+    public void setAcStatuses(final List<AirConditionerStatusResponse> acStatuses) {
         this.acStatuses = acStatuses;
     }
 
@@ -37,7 +37,7 @@ public class AirtouchStatus {
         return groupStatuses;
     }
 
-    public void setGroupStatuses(List<GroupStatusResponse> groupStatuses) {
+    public void setGroupStatuses(final List<GroupStatusResponse> groupStatuses) {
         this.groupStatuses = groupStatuses;
     }
 

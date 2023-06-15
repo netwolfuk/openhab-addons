@@ -31,10 +31,6 @@ public class AirTouchBindingConstants {
     public static final ThingTypeUID AIRTOUCH4_CONTROLLER_THING_TYPE = new ThingTypeUID(BINDING_ID,
             AIRTOUCH4_CONTROLLER);
 
-    // List of all Channel ids
-    public static final String AC_POWER_CHANNEL = "ac-power";
-    public static final String ZONE_POWER_CHANNEL = "zone-power";
-
     public static final int DISCOVERY_SCAN_TIMEOUT_SECONDS = 30;
 
     public static final String PROPERTY_AIRTOUCH_HOST = "host";
@@ -44,4 +40,22 @@ public class AirTouchBindingConstants {
     public static final String PROPERTY_AIRTOUCH_UID = "AirTouchUid";
     public static final String PROPERTY_AIRTOUCH_MAC_ADDRESS = "AirTouchMacAddress";
     public static final String PROPERTY_AIRTOUCH_VERSION = "AirTouchVersion";
+
+    /*********************************
+     *
+     * Channel UIDs
+     *
+     *********************************/
+
+    // Unit UIDs
+    public static final String CHANNELUID_AIRCONDITIONER_UNIT_POWER = "airconditioner-unit-power";
+    public static final String CHANNELUID_AIRCONDITIONER_UNIT_SETPOINT = "airconditioner-unit-setpoint";
+    public static final String CHANNELUID_AIRCONDITIONER_UNIT_TEMPERATURE = "airconditioner-unit-temperature";
+
+    // Zone UIDs
+    public static final String CHANNELUID_AIRCONDITIONER_ZONE_POWER = "airconditioner-zone-power";
+    public static final String CHANNELUID_AIRCONDITIONER_ZONE_SETPOINT = "airconditioner-zone-setpoint";
+    public static final String CHANNELUID_AIRCONDITIONER_ZONE_TEMPERATURE = "airconditioner-zone-temperature";
+    public static final String CHANNELUID_AIRCONDITIONER_ZONE_FLOW = "airconditioner-zone-flow";
+    public static final String CHANNELUID_AIRCONDITIONER_ZONE_BATTERY_LOW = "airconditioner-zone-battery-low";
 }
