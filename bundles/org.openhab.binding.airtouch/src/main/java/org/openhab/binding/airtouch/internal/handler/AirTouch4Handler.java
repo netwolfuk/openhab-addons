@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.airtouch.internal.AirTouchBindingConstants;
@@ -36,6 +35,7 @@ import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelGroupUID;
 import org.openhab.core.thing.ChannelUID;
@@ -73,7 +73,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
 
     private final Logger logger = LoggerFactory.getLogger(AirTouch4Handler.class);
 
-    private final @NonNullByDefault AirTouch4Service airtouch4Service;
+    private final AirTouch4Service airtouch4Service;
 
     private @Nullable ScheduledFuture<?> future;
 
@@ -112,6 +112,9 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         } catch (IOException e) {
             final AirTouchConfiguration myConfig = getConfigAs(AirTouchConfiguration.class);
             handleConnectionException(e, myConfig);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to handleCommand for '{}' -> '{}'. Exception: {}", channelUID.getAsString(),
+                    command.toFullString(), e.getMessage());
         }
 
         // TODO: handle command
@@ -144,21 +147,27 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
     }
 
     private void handleZoneCommand(ChannelUID channelUID, Command command) throws IOException {
-        Integer zoneNumber = Integer.parseInt(channelUID.getGroupId().replace("ac-zone-", ""));
+        Integer zoneNumber = Integer.parseInt(channelUID.getGroupId().replace("ac-zone-", "")); // NOSONAR
         switch (channelUID.getIdWithoutGroup()) {
             case CHANNELUID_AIRCONDITIONER_ZONE_POWER:
                 if (command instanceof OnOffType) {
                     GroupPower zonePowerState = convertToZonePower((OnOffType) command);
                     this.airtouch4Service.sendRequest(GroupControlHandler.requestBuilder(zoneNumber)
                             .power(zonePowerState).build(this.airtouch4Service.getNextRequestId()));
+                } else if (command instanceof StringType) {
+                    GroupPower zonePowerState = convertToZonePower((StringType) command);
+                    this.airtouch4Service.validateZonePowerState(zoneNumber, zonePowerState);
+                    this.airtouch4Service.sendRequest(GroupControlHandler.requestBuilder(zoneNumber)
+                            .power(zonePowerState).build(this.airtouch4Service.getNextRequestId()));
                 }
                 break;
             case CHANNELUID_AIRCONDITIONER_ZONE_SETPOINT:
                 if (command instanceof QuantityType) {
+                    int setpointValue = ((QuantityType<?>) command).intValue();
+                    this.airtouch4Service.validateZoneSetpoint(zoneNumber, setpointValue);
                     this.airtouch4Service.sendRequest(
                             GroupControlHandler.requestBuilder(zoneNumber).setting(GroupSetting.SET_TARGET_SETPOINT)
-                                    .settingValue(((QuantityType<?>) command).intValue())
-                                    .build(this.airtouch4Service.getNextRequestId()));
+                                    .settingValue(setpointValue).build(this.airtouch4Service.getNextRequestId()));
                 }
                 break;
 
@@ -167,7 +176,11 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
 
     private GroupPower convertToZonePower(OnOffType command) {
         return command.equals(OnOffType.ON) ? GroupControlConstants.GroupPower.POWER_ON
-                : GroupControlConstants.GroupPower.POWER_OFF; // TODO: Handle turbo
+                : GroupControlConstants.GroupPower.POWER_OFF;
+    }
+
+    private GroupPower convertToZonePower(StringType command) {
+        return GroupControlConstants.GroupPower.valueOf(command.toFullString());
     }
 
     @Override
@@ -219,9 +232,15 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         // "Can not access device as username and/or password are invalid");
     }
 
-    protected void thingStructureChanged(@NonNull AirtouchStatus airtouchStatus) {
+    protected void thingStructureChanged(AirtouchStatus airtouchStatus) {
         logger.debug("Updating thing structure");
         ThingBuilder thingBuilder = editThing();
+
+        /*
+         * Loop over the ACs and create channels for each AC.
+         * Most installations probably have one AC Unit.
+         * The channels are grouped together per AC unit.
+         */
         airtouchStatus.getAcAbilities().values().forEach(ac -> {
             logger.info("Attmpting to add found ac {}", ac);
             ChannelGroupUID channelGroupUID = new ChannelGroupUID(
@@ -257,6 +276,10 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
 
         });
 
+        /*
+         * Loop over the Zones and create channels for each Zone.
+         * The channels are grouped together per Zone.
+         */
         airtouchStatus.getGroupNames().forEach((zoneId, zoneName) -> {
             logger.info("Attmpting to add found zone {}", zoneName);
             ChannelGroupUID channelGroupUID = new ChannelGroupUID(this.getThing().getUID() + ":ac-zone-" + zoneId);
@@ -313,8 +336,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         updateThing(thingBuilder.build());
     }
 
-    @Override
-    public void allStatusUpdate(@NonNull AirtouchStatus airtouchStatus) {
+    public void allStatusUpdate(AirtouchStatus airtouchStatus) {
         logger.trace("Updating thing statuses: {}", airtouchStatus);
         airconditionerStatusUpdate(airtouchStatus.getAcStatuses());
         zoneStatusUpdate(airtouchStatus.getGroupStatuses());
@@ -333,7 +355,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
     }
 
     @Override
-    public void initialisationCompleted(AirtouchStatus status) {
+    public void fullUpdate(AirtouchStatus status) {
         updateStatus(ThingStatus.ONLINE);
         thingStructureChanged(status);
         allStatusUpdate(status);

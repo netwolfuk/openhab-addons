@@ -10,11 +10,9 @@ import airtouch.v4.model.GroupStatusResponse;
 
 public interface AirTouchServiceListener {
 
-    void initialisationCompleted(final @NonNull AirtouchStatus status);
+    void fullUpdate(final @NonNull AirtouchStatus status);
 
     void airconditionerStatusUpdate(final @NonNull List<AirConditionerStatusResponse> acStatuses);
 
     void zoneStatusUpdate(final @NonNull List<GroupStatusResponse> groupStatuses);
-
-    void allStatusUpdate(final @NonNull AirtouchStatus status);
 }
