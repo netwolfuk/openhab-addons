@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.airtouch.internal.AirTouchStatusUtil;
 import org.openhab.binding.airtouch.internal.dto.AirtouchStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import airtouch.v4.Request;
 import airtouch.v4.Response;
 import airtouch.v4.ResponseCallback;
 import airtouch.v4.connector.AirtouchConnector;
+import airtouch.v4.constant.GroupControlConstants.GroupPower;
 import airtouch.v4.handler.AirConditionerAbilityHandler;
 import airtouch.v4.handler.AirConditionerStatusHandler;
 import airtouch.v4.handler.ConsoleVersionHandler;
@@ -44,10 +46,6 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
     private @Nullable ScheduledFuture<?> future;
 
     private @Nullable AirTouchServiceListener airTouchServiceListener;
-
-    public void setAirTouchServiceListener(AirTouchServiceListener airTouchServiceListener) {
-        this.airTouchServiceListener = airTouchServiceListener;
-    }
 
     @Override
     public void requestFullUpdate() throws IOException {
@@ -91,13 +89,13 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
             case AC_STATUS:
                 final List<AirConditionerStatusResponse> acStatuses = response.getData();
                 status.setAcStatuses(acStatuses);
-                if (this.gotConfigFromAirtouch.get()) {
+                if (this.gotConfigFromAirtouch.get() && this.airTouchServiceListener != null) {
                     this.airTouchServiceListener.airconditionerStatusUpdate(acStatuses);
                 }
                 break;
             case GROUP_STATUS:
                 status.setGroupStatuses(response.getData());
-                if (this.gotConfigFromAirtouch.get()) {
+                if (this.gotConfigFromAirtouch.get() && this.airTouchServiceListener != null) {
                     this.airTouchServiceListener.zoneStatusUpdate(response.getData());
                 }
                 break;
@@ -127,13 +125,12 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
         if (!this.responseReceived.containsValue(Boolean.FALSE) && !this.gotConfigFromAirtouch.get()) {
             this.gotConfigFromAirtouch.set(true);
             logger.debug("Expected events received: {}. Updating thing structure.", this.responseReceived);
-            // this.eventListener.eventReceived(getStatus());
-            this.airTouchServiceListener.initialisationCompleted(getStatus());
-
-            // updatesStatuses(getStatus()); // TODO: Make this only update the items relating to the MessageType
-            // received.
-            // } else if (this.gotConfigFromAirtouch.get()) {
-            // updatesStatuses(getStatus());
+            if (this.airTouchServiceListener != null) {
+                this.airTouchServiceListener.fullUpdate(getStatus());
+            } else {
+                logger.debug(
+                        "airTouchServiceListener is null. Skipping airTouchServiceListener#initialisationCompleted()");
+            }
         } else if (!this.gotConfigFromAirtouch.get()) {
             logger.debug("Not all events received yet: {}", this.responseReceived);
         }
@@ -181,4 +178,25 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
     public int getNextRequestId() {
         return this.counter.incrementAndGet();
     }
+
+    @Override
+    public void validateZonePowerState(int zoneNumber, GroupPower zonePowerState) throws IllegalArgumentException {
+        if (GroupPower.TURBO_POWER.equals(zonePowerState)
+                && !this.status.getGroupStatuses().get(zoneNumber).isTurboSupported()) {
+            throw new IllegalArgumentException(String.format("'%s' is not supported for Zone '%s' (%s)", zonePowerState,
+                    this.status.getGroupNames().get(zoneNumber), zoneNumber));
+        }
+    }
+
+    @Override
+    public void validateZoneSetpoint(int zoneNumber, int setpointValue) throws IllegalArgumentException {
+        AirConditionerAbilityResponse acAbilityResponse = AirTouchStatusUtil.findAcForZone(this.status, zoneNumber);
+        if (setpointValue > acAbilityResponse.getMaxSetPoint() || setpointValue < acAbilityResponse.getMinSetPoint()) {
+            throw new IllegalArgumentException(String.format(
+                    "Setpoint value '%s' is not supported for AC '%s' (%s). Accepted setpoint range is %s - %s",
+                    setpointValue, acAbilityResponse.getAcName(), acAbilityResponse.getAcNumber(),
+                    acAbilityResponse.getMinSetPoint(), acAbilityResponse.getMaxSetPoint()));
+        }
+    }
+
 }
