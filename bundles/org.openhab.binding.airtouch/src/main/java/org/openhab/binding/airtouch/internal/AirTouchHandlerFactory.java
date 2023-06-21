@@ -26,7 +26,9 @@ import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
 import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,27 +43,29 @@ import org.slf4j.LoggerFactory;
 public class AirTouchHandlerFactory extends BaseThingHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(AirTouchHandlerFactory.class);
-
+    private final AirTouchDynamicStateDescriptionProvider dynamicStateDescriptionProvider;
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(AIRTOUCH4_CONTROLLER_THING_TYPE);
+
+    @Activate
+    public AirTouchHandlerFactory(@Reference AirTouchDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
+        this.dynamicStateDescriptionProvider = dynamicStateDescriptionProvider;
+    }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-        logger.debug("I am being asked if I support '{}'", thingTypeUID);
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
     @Override
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-        logger.debug("ThingHandler called with thing '{}'", thing.getThingTypeUID());
 
         if (AIRTOUCH4_CONTROLLER_THING_TYPE.equals(thingTypeUID)) {
             logger.debug("Creating AirTouchAirConditionerHandler for '{}'", thing.getThingTypeUID());
             AirTouch4Service airTouch4Service = new AirTouch4ServiceImpl();
-            return new AirTouch4Handler(thing, airTouch4Service);
+            return new AirTouch4Handler(thing, airTouch4Service, this.dynamicStateDescriptionProvider);
         }
 
-        logger.debug("Returning null for '{}'", thing.getThingTypeUID());
         return null;
     }
 }

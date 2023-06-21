@@ -51,6 +51,10 @@ public class AirTouchBindingConstants {
     public static final String CHANNELUID_AIRCONDITIONER_UNIT_POWER = "airconditioner-unit-power";
     public static final String CHANNELUID_AIRCONDITIONER_UNIT_SETPOINT = "airconditioner-unit-setpoint";
     public static final String CHANNELUID_AIRCONDITIONER_UNIT_TEMPERATURE = "airconditioner-unit-temperature";
+    public static final String CHANNELUID_AIRCONDITIONER_UNIT_MODE = "airconditioner-unit-mode";
+    public static final String CHANNELUID_AIRCONDITIONER_UNIT_FANSPEED = "airconditioner-unit-fanspeed";
+    public static final String CHANNELUID_AIRCONDITIONER_UNIT_SPILL = "airconditioner-unit-spill";
+    public static final String CHANNELUID_AIRCONDITIONER_UNIT_TIMER = "airconditioner-unit-timer";
 
     // Zone UIDs
     public static final String CHANNELUID_AIRCONDITIONER_ZONE_POWER = "airconditioner-zone-power";
