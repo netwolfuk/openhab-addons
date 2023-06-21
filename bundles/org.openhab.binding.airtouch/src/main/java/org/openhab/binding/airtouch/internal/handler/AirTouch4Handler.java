@@ -12,9 +12,13 @@
  */
 package org.openhab.binding.airtouch.internal.handler;
 
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_UNIT_FANSPEED;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_UNIT_MODE;
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_UNIT_POWER;
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_UNIT_SETPOINT;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_UNIT_SPILL;
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_UNIT_TEMPERATURE;
+import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_UNIT_TIMER;
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_ZONE_BATTERY_LOW;
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_ZONE_FLOW;
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_ZONE_POWER;
@@ -22,14 +26,18 @@ import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHA
 import static org.openhab.binding.airtouch.internal.AirTouchBindingConstants.CHANNELUID_AIRCONDITIONER_ZONE_TEMPERATURE;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.airtouch.internal.AirTouchBindingConstants;
 import org.openhab.binding.airtouch.internal.AirTouchConfiguration;
+import org.openhab.binding.airtouch.internal.AirTouchStateDescriptionFragmentCache;
+import org.openhab.binding.airtouch.internal.AirTouchStatusUtil;
 import org.openhab.binding.airtouch.internal.dto.AirtouchStatus;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
@@ -48,6 +56,8 @@ import org.openhab.core.thing.binding.builder.ThingBuilder;
 import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
+import org.openhab.core.types.StateDescriptionFragmentBuilder;
+import org.openhab.core.types.StateOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +68,7 @@ import airtouch.v4.constant.GroupControlConstants.GroupPower;
 import airtouch.v4.constant.GroupControlConstants.GroupSetting;
 import airtouch.v4.constant.GroupStatusConstants;
 import airtouch.v4.handler.GroupControlHandler;
+import airtouch.v4.model.AirConditionerAbilityResponse;
 import airtouch.v4.model.AirConditionerStatusResponse;
 import airtouch.v4.model.GroupStatusResponse;
 import tech.units.indriya.unit.Units;
@@ -74,12 +85,15 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
     private final Logger logger = LoggerFactory.getLogger(AirTouch4Handler.class);
 
     private final AirTouch4Service airtouch4Service;
+    private final AirTouchStateDescriptionFragmentCache stateDescriptionFragmentCache;
 
     private @Nullable ScheduledFuture<?> future;
 
-    public AirTouch4Handler(Thing thing, AirTouch4Service airTouch4Service) {
+    public AirTouch4Handler(Thing thing, AirTouch4Service airTouch4Service,
+            AirTouchStateDescriptionFragmentCache stateDescriptionFragmentCache) {
         super(thing);
         this.airtouch4Service = airTouch4Service;
+        this.stateDescriptionFragmentCache = stateDescriptionFragmentCache;
     }
 
     @Override
@@ -263,6 +277,9 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                             CHANNELUID_AIRCONDITIONER_UNIT_SETPOINT))
                     .build();
             thingBuilder.withoutChannel(channelUnitSetPoint.getUID()).withChannel(channelUnitSetPoint);
+            this.stateDescriptionFragmentCache.putStateDescriptionFragmentInCache(channelUnitSetPoint,
+                    StateDescriptionFragmentBuilder.create().withMinimum(BigDecimal.valueOf(ac.getMinSetPoint()))
+                            .withMaximum(BigDecimal.valueOf(ac.getMaxSetPoint())).build());
             logger.trace("Added channel: '{}'", channelUnitSetPoint.getLabel());
 
             Channel channelUnitTemperature = ChannelBuilder
@@ -273,6 +290,50 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                     .build();
             thingBuilder.withoutChannel(channelUnitTemperature.getUID()).withChannel(channelUnitTemperature);
             logger.trace("Added channel: '{}'", channelUnitTemperature.getLabel());
+
+            Channel channelUnitMode = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_MODE))
+                    .withLabel(String.format("AC Unit Mode - %s (%s)", ac.getAcName(), ac.getAcNumber()))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID,
+                            CHANNELUID_AIRCONDITIONER_UNIT_MODE))
+                    .build();
+            thingBuilder.withoutChannel(channelUnitMode.getUID()).withChannel(channelUnitMode);
+            List<StateOption> modes = ac.getSupportedModes().stream()
+                    .map(m -> new StateOption(m.toString(), m.toString())).collect(Collectors.toList());
+            this.stateDescriptionFragmentCache.putStateDescriptionFragmentInCache(channelUnitMode,
+                    StateDescriptionFragmentBuilder.create().withOptions(modes).build());
+            logger.trace("Added channel: '{}'", channelUnitMode.getLabel());
+
+            Channel channelUnitFanspeed = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_FANSPEED))
+                    .withLabel(String.format("AC Unit Fanspeed - %s (%s)", ac.getAcName(), ac.getAcNumber()))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID,
+                            CHANNELUID_AIRCONDITIONER_UNIT_FANSPEED))
+                    .build();
+            thingBuilder.withoutChannel(channelUnitFanspeed.getUID()).withChannel(channelUnitFanspeed);
+            List<StateOption> speeds = ac.getSupportedFanSpeeds().stream()
+                    .map(m -> new StateOption(m.toString(), m.toString())).collect(Collectors.toList());
+            this.stateDescriptionFragmentCache.putStateDescriptionFragmentInCache(channelUnitFanspeed,
+                    StateDescriptionFragmentBuilder.create().withOptions(speeds).build());
+            logger.trace("Added channel: '{}'", channelUnitFanspeed.getLabel());
+
+            Channel channelUnitSpill = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_SPILL))
+                    .withLabel(String.format("AC Unit Spill - %s (%s)", ac.getAcName(), ac.getAcNumber()))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID,
+                            CHANNELUID_AIRCONDITIONER_UNIT_SPILL))
+                    .build();
+            thingBuilder.withoutChannel(channelUnitSpill.getUID()).withChannel(channelUnitSpill);
+            logger.trace("Added channel: '{}'", channelUnitSpill.getLabel());
+
+            Channel channelUnitTimer = ChannelBuilder
+                    .create(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_TIMER))
+                    .withLabel(String.format("AC Unit Timer - %s (%s)", ac.getAcName(), ac.getAcNumber()))
+                    .withType(new ChannelTypeUID(AirTouchBindingConstants.BINDING_ID,
+                            CHANNELUID_AIRCONDITIONER_UNIT_TIMER))
+                    .build();
+            thingBuilder.withoutChannel(channelUnitTimer.getUID()).withChannel(channelUnitTimer);
+            logger.trace("Added channel: '{}'", channelUnitTimer.getLabel());
 
         });
 
@@ -301,6 +362,14 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                             CHANNELUID_AIRCONDITIONER_ZONE_SETPOINT))
                     .build();
             thingBuilder.withoutChannel(channelZoneSetpoint.getUID()).withChannel(channelZoneSetpoint);
+            try {
+                AirConditionerAbilityResponse ac = AirTouchStatusUtil.findAcForZone(airtouchStatus, zoneId);
+                this.stateDescriptionFragmentCache.putStateDescriptionFragmentInCache(channelZoneSetpoint,
+                        StateDescriptionFragmentBuilder.create().withMinimum(BigDecimal.valueOf(ac.getMinSetPoint()))
+                                .withMaximum(BigDecimal.valueOf(ac.getMaxSetPoint())).build());
+            } catch (IllegalArgumentException e) {
+                logger.debug("Unable to set min/max setpoint values for zone '{}'", zoneId, e);
+            }
             logger.trace("Added channel: '{}'", channelZoneSetpoint.getLabel());
 
             if (airtouchStatus.getGroupStatuses().get(zoneId).hasSensor()) {
@@ -391,6 +460,26 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                     QuantityType.valueOf(ac.getCurrentTemperature(), Units.CELSIUS));
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
                     CHANNELUID_AIRCONDITIONER_UNIT_TEMPERATURE);
+
+            updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_MODE),
+                    new StringType(ac.getMode().toString()));
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
+                    CHANNELUID_AIRCONDITIONER_UNIT_MODE);
+
+            updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_FANSPEED),
+                    new StringType(ac.getFanSpeed().toString()));
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
+                    CHANNELUID_AIRCONDITIONER_UNIT_FANSPEED);
+
+            updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_SPILL),
+                    ac.isSpill() ? OnOffType.ON : OnOffType.OFF);
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
+                    CHANNELUID_AIRCONDITIONER_UNIT_SPILL);
+
+            updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_TIMER),
+                    ac.isAcTimer() ? OnOffType.ON : OnOffType.OFF);
+            logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
+                    CHANNELUID_AIRCONDITIONER_UNIT_TIMER);
         });
     }
 
@@ -414,6 +503,10 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
                     CHANNELUID_AIRCONDITIONER_ZONE_FLOW);
 
+            /*
+             * If the install does not have the physical Zone Temperature devices, we can't determine the
+             * Zone Temperature or the Device Battery Status.
+             */
             if (groupStatuses.get(zone.getGroupNumber()).hasSensor()) {
                 updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_ZONE_TEMPERATURE),
                         new DecimalType(zone.getCurrentTemperature()));

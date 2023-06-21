@@ -37,6 +37,28 @@
 		</tags>
 		<state step="1" pattern="%d °C" readOnly="false"/>
 	</channel-type>
+	<channel-type id="airconditioner-unit-mode">
+		<item-type>String</item-type>
+		<label>AC Unit Mode</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
+		<description>The Mode of the Air-Conditioning unit. (HEAT,COOL,AUTO,etc)</description>
+	</channel-type>
+	<channel-type id="airconditioner-unit-fanspeed">
+		<item-type>String</item-type>
+		<label>AC Unit Fan Speed</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
+		<description>The Fan Speed of the Air-Conditioning unit. (LOW,MEDIUM,HIGH,AUTO,etc)</description>
+	</channel-type>
+	<channel-type id="airconditioner-unit-spill">
+		<item-type>Switch</item-type>
+		<label>AC Unit Spill</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
+		<description>Whether the Air-Conditioning unit is in spill.</description>
+		<state readOnly="true"/>
+	</channel-type>
+	<channel-type id="airconditioner-unit-timer">
+		<item-type>Switch</item-type>
+		<label>AC Unit Timer</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
+		<description>Whether the Air-Conditioning unit has a Timer activated.</description>
+		<state readOnly="true"/>
+	</channel-type>
 
 	<channel-group-type id="airconditioner-zone">
 		<label>Air Conditioner Zone</label>

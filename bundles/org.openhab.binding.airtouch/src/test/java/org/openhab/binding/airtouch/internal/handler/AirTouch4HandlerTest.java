@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openhab.binding.airtouch.internal.AirTouchDynamicStateDescriptionProvider;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.ChannelGroupUID;
@@ -39,7 +40,7 @@ class AirTouch4HandlerTest {
     @BeforeEach
     public void setupClass() {
         when(airTouch4Service.getNextRequestId()).thenReturn(100);
-        handler = new AirTouch4Handler(thingMock, airTouch4Service);
+        handler = new AirTouch4Handler(thingMock, airTouch4Service, new AirTouchDynamicStateDescriptionProvider());
         requestCaptor = ArgumentCaptor.forClass(Request.class);
     }
 

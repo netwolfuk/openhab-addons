@@ -198,5 +198,4 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
                     acAbilityResponse.getMinSetPoint(), acAbilityResponse.getMaxSetPoint()));
         }
     }
-
 }
