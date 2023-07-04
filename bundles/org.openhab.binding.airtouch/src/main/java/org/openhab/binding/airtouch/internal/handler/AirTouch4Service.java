@@ -6,6 +6,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import airtouch.v4.Request;
+import airtouch.v4.constant.AirConditionerControlConstants.Mode;
 import airtouch.v4.constant.GroupControlConstants.GroupPower;
 
 public interface AirTouch4Service {
@@ -86,7 +87,25 @@ public interface AirTouch4Service {
     void requestStatusUpdate() throws IOException;
 
     /**
-     * Validate that the requested GroupPower is applicable for the Zone configuration on this AirTouch.
+     * Validate that the requested AC Unit Setpoint is applicable for this Airtouch.
+     *
+     * @param acNumber
+     * @param setpointValue
+     * @throws IllegalArgumentException
+     */
+    void validateAcSetpoint(int acNumber, int setpointValue) throws IllegalArgumentException;
+
+    /**
+     * Validate that the requested AC Unit Mode is applicable for this Airtouch.
+     *
+     * @param acNumber
+     * @param acMode
+     * @throws IllegalArgumentException
+     */
+    void validateAcMode(int acNumber, @NonNull Mode acMode) throws IllegalArgumentException;
+
+    /**
+     * Validate that the requested AC Unit Setpoint is applicable for this Airtouch.
      *
      * @param zoneNumber
      * @param zonePowerState
@@ -95,7 +114,7 @@ public interface AirTouch4Service {
     void validateZonePowerState(int zoneNumber, @NonNull GroupPower zonePowerState) throws IllegalArgumentException;
 
     /**
-     * Vaudate
+     * Validate that the requested Zone Setpoint is applicable for this Airtouch.
      *
      * @param zoneNumber
      * @param setpointValue

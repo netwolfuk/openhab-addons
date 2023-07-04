@@ -41,7 +41,6 @@ import org.openhab.binding.airtouch.internal.AirTouchStatusUtil;
 import org.openhab.binding.airtouch.internal.dto.AirtouchStatus;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
-import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Channel;
@@ -62,11 +61,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import airtouch.exception.AirtouchMessagingException;
-import airtouch.v4.constant.AcStatusConstants;
+import airtouch.v4.constant.AirConditionerControlConstants;
+import airtouch.v4.constant.AirConditionerControlConstants.AcPower;
+import airtouch.v4.constant.AirConditionerControlConstants.Mode;
+import airtouch.v4.constant.AirConditionerControlConstants.SetpointControl;
+import airtouch.v4.constant.AirConditionerStatusConstants;
 import airtouch.v4.constant.GroupControlConstants;
 import airtouch.v4.constant.GroupControlConstants.GroupPower;
 import airtouch.v4.constant.GroupControlConstants.GroupSetting;
 import airtouch.v4.constant.GroupStatusConstants;
+import airtouch.v4.handler.AirConditionerControlHandler;
 import airtouch.v4.handler.GroupControlHandler;
 import airtouch.v4.model.AirConditionerAbilityResponse;
 import airtouch.v4.model.AirConditionerStatusResponse;
@@ -126,7 +130,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         } catch (IOException e) {
             final AirTouchConfiguration myConfig = getConfigAs(AirTouchConfiguration.class);
             handleConnectionException(e, myConfig);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | AirtouchMessagingException e) {
             logger.warn("Failed to handleCommand for '{}' -> '{}'. Exception: {}", channelUID.getAsString(),
                     command.toFullString(), e.getMessage());
         }
@@ -139,7 +143,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         // "Could not control device at IP address x.x.x.x");
     }
 
-    private void handleConnectionException(final IOException e, final AirTouchConfiguration myConfig) {
+    private void handleConnectionException(final Exception e, final AirTouchConfiguration myConfig) {
         logger.warn("Exception occured requesting AirTouch update: {}. Attempting to restart service.", e.getMessage());
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                 String.format("Error with connection  to '%s'. %s", myConfig.host, e.getMessage()));
@@ -154,9 +158,33 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         }
     }
 
-    private void handleUnitCommand(ChannelUID channelUID, Command command) {
-        Integer unitNumber = Integer.parseInt(channelUID.getGroupId().replace("ac-unit-", ""));
+    private void handleUnitCommand(ChannelUID channelUID, Command command) throws IOException {
+        Integer unitNumber = Integer.parseInt(channelUID.getGroupId().replace("ac-unit-", "")); // NOSONAR
         switch (channelUID.getIdWithoutGroup()) {
+            case CHANNELUID_AIRCONDITIONER_UNIT_POWER:
+                if (command instanceof OnOffType) {
+                    AcPower acPowerState = convertToAcPower((OnOffType) command);
+                    this.airtouch4Service.sendRequest(AirConditionerControlHandler.requestBuilder(unitNumber)
+                            .acPower(acPowerState).build(this.airtouch4Service.getNextRequestId()));
+                }
+                break;
+            case CHANNELUID_AIRCONDITIONER_UNIT_SETPOINT:
+                if (command instanceof QuantityType) {
+                    int setpointValue = ((QuantityType<?>) command).intValue();
+                    this.airtouch4Service.validateZoneSetpoint(unitNumber, setpointValue);
+                    this.airtouch4Service.sendRequest(AirConditionerControlHandler.requestBuilder(unitNumber)
+                            .setpointControl(SetpointControl.SET_TO_VALUE).setpointValue(setpointValue)
+                            .build(this.airtouch4Service.getNextRequestId()));
+                }
+                break;
+            case CHANNELUID_AIRCONDITIONER_UNIT_MODE:
+                if (command instanceof StringType) {
+                    Mode acMode = Mode.valueOf(command.toFullString());
+                    this.airtouch4Service.validateAcMode(unitNumber, acMode);
+                    this.airtouch4Service.sendRequest(AirConditionerControlHandler.requestBuilder(unitNumber)
+                            .acMode(acMode).build(this.airtouch4Service.getNextRequestId()));
+                }
+                break;
         }
     }
 
@@ -186,6 +214,11 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                 break;
 
         }
+    }
+
+    private AcPower convertToAcPower(OnOffType command) {
+        return command.equals(OnOffType.ON) ? AirConditionerControlConstants.AcPower.POWER_ON
+                : AirConditionerControlConstants.AcPower.POWER_OFF;
     }
 
     private GroupPower convertToZonePower(OnOffType command) {
@@ -221,10 +254,10 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
             // Example for background initialization:
             scheduler.execute(() -> {
                 this.airtouch4Service.registerListener(this);
-                this.airtouch4Service.start(config.host, config.port);
                 try {
+                    this.airtouch4Service.start(config.host, config.port);
                     this.airtouch4Service.requestFullUpdate();
-                } catch (IOException e) {
+                } catch (IOException | AirtouchMessagingException e) {
                     handleConnectionException(e, config);
                 }
 
@@ -256,10 +289,10 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
          * The channels are grouped together per AC unit.
          */
         airtouchStatus.getAcAbilities().values().forEach(ac -> {
-            logger.info("Attmpting to add found ac {}", ac);
+            logger.debug("Attempting to add found ac {}", ac);
             ChannelGroupUID channelGroupUID = new ChannelGroupUID(
                     this.getThing().getUID() + ":ac-unit-" + ac.getAcNumber());
-            logger.info("ChannelGroupUID: '{}'", channelGroupUID.getAsString());
+            logger.trace("ChannelGroupUID: '{}'", channelGroupUID.getAsString());
 
             Channel channelUnitPower = ChannelBuilder
                     .create(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_POWER))
@@ -433,7 +466,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         this.future = scheduler.scheduleWithFixedDelay(() -> {
             try {
                 airtouch4Service.requestStatusUpdate();
-            } catch (IOException e) {
+            } catch (IOException | AirtouchMessagingException e) {
                 handleConnectionException(e, myConfig);
             }
         }, myConfig.refreshInterval, myConfig.refreshInterval, TimeUnit.SECONDS);
@@ -447,7 +480,8 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                     this.getThing().getUID() + ":ac-unit-" + ac.getAcNumber());
 
             updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_UNIT_POWER),
-                    AcStatusConstants.PowerState.ON.equals(ac.getPowerstate()) ? OnOffType.ON : OnOffType.OFF);
+                    AirConditionerStatusConstants.PowerState.ON.equals(ac.getPowerstate()) ? OnOffType.ON
+                            : OnOffType.OFF);
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
                     CHANNELUID_AIRCONDITIONER_UNIT_POWER);
 
@@ -499,7 +533,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                     CHANNELUID_AIRCONDITIONER_ZONE_SETPOINT);
 
             updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_ZONE_FLOW),
-                    new PercentType(zone.getOpenPercentage()));
+                    new QuantityType<>(zone.getOpenPercentage(), Units.PERCENT));
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
                     CHANNELUID_AIRCONDITIONER_ZONE_FLOW);
 
