@@ -21,6 +21,7 @@ import airtouch.v4.Request;
 import airtouch.v4.Response;
 import airtouch.v4.ResponseCallback;
 import airtouch.v4.connector.AirtouchConnector;
+import airtouch.v4.constant.AirConditionerControlConstants.Mode;
 import airtouch.v4.constant.GroupControlConstants.GroupPower;
 import airtouch.v4.handler.AirConditionerAbilityHandler;
 import airtouch.v4.handler.AirConditionerStatusHandler;
@@ -54,6 +55,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
             return;
         }
         final AirtouchConnector myairtouchConnector = this.airtouchConnector;
+        this.gotConfigFromAirtouch.set(false);
         this.responseReceived.clear();
         this.responseReceived.put(counter.incrementAndGet(), Boolean.FALSE);
         myairtouchConnector.sendRequest(GroupStatusHandler.generateRequest(counter.get(), null));
@@ -177,6 +179,29 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
     @Override
     public int getNextRequestId() {
         return this.counter.incrementAndGet();
+    }
+
+    @Override
+    public void validateAcSetpoint(int acNumber, int setpointValue) throws IllegalArgumentException {
+        AirConditionerAbilityResponse acAbilityResponse = this.status.getAcAbilities().get(acNumber);
+        if (setpointValue > acAbilityResponse.getMaxSetPoint() || setpointValue < acAbilityResponse.getMinSetPoint()) {
+            throw new IllegalArgumentException(String.format(
+                    "Setpoint value '%s' is not supported for AC '%s' (%s). Accepted setpoint range is %s - %s",
+                    setpointValue, acAbilityResponse.getAcName(), acAbilityResponse.getAcNumber(),
+                    acAbilityResponse.getMinSetPoint(), acAbilityResponse.getMaxSetPoint()));
+        }
+    }
+
+    @Override
+    public void validateAcMode(int acNumber, Mode acMode) throws IllegalArgumentException {
+        AirConditionerAbilityResponse acAbilityResponse = this.status.getAcAbilities().get(acNumber);
+        if (!acAbilityResponse.getSupportedModes().contains(acMode)) {
+            throw new IllegalArgumentException(String.format(
+                    "Mode value '%s' is not supported for AC '%s' (%s). Accepted Modes are: %s", acMode.toString(),
+                    acAbilityResponse.getAcName(), acAbilityResponse.getAcNumber(), acAbilityResponse
+                            .getSupportedModes().stream().map(Mode::toString).collect(Collectors.joining(","))));
+
+        }
     }
 
     @Override

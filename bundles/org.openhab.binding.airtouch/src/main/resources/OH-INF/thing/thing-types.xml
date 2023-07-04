@@ -93,7 +93,7 @@
 		<category>LowBattery</category>
 	</channel-type>
 	<channel-type id="airconditioner-zone-flow">
-		<item-type>Number</item-type>
+		<item-type>Number:Dimensionless</item-type>
 		<label>Zone AirFlow</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
 		<description>The Zone Flow (percentage damper open).</description>
 		<category>Slider</category>
