@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-import airtouch.v4.Request;
+import airtouch.Request;
 import airtouch.v4.constant.AirConditionerControlConstants.Mode;
 import airtouch.v4.constant.GroupControlConstants.GroupPower;
 

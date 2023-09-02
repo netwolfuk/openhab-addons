@@ -20,7 +20,7 @@ import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.binding.ThingHandlerCallback;
 
-import airtouch.v4.Request;
+import airtouch.Request;
 import airtouch.v4.constant.GroupControlConstants;
 import airtouch.v4.constant.MessageConstants.Address;
 import airtouch.v4.constant.MessageConstants.MessageType;

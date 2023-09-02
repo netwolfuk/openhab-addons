@@ -17,12 +17,13 @@ import org.openhab.binding.airtouch.internal.dto.AirtouchStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import airtouch.v4.Request;
-import airtouch.v4.Response;
-import airtouch.v4.ResponseCallback;
+import airtouch.Request;
+import airtouch.Response;
+import airtouch.ResponseCallback;
 import airtouch.v4.connector.AirtouchConnector;
 import airtouch.v4.constant.AirConditionerControlConstants.Mode;
 import airtouch.v4.constant.GroupControlConstants.GroupPower;
+import airtouch.v4.constant.MessageConstants.MessageType;
 import airtouch.v4.handler.AirConditionerAbilityHandler;
 import airtouch.v4.handler.AirConditionerStatusHandler;
 import airtouch.v4.handler.ConsoleVersionHandler;
@@ -57,16 +58,30 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
         final AirtouchConnector myairtouchConnector = this.airtouchConnector;
         this.gotConfigFromAirtouch.set(false);
         this.responseReceived.clear();
-        this.responseReceived.put(counter.incrementAndGet(), Boolean.FALSE);
-        myairtouchConnector.sendRequest(GroupStatusHandler.generateRequest(counter.get(), null));
-        this.responseReceived.put(counter.incrementAndGet(), Boolean.FALSE);
-        myairtouchConnector.sendRequest(GroupNameHandler.generateRequest(counter.get(), null));
-        this.responseReceived.put(counter.incrementAndGet(), Boolean.FALSE);
-        myairtouchConnector.sendRequest(AirConditionerStatusHandler.generateRequest(counter.get(), null));
-        this.responseReceived.put(counter.incrementAndGet(), Boolean.FALSE);
-        myairtouchConnector.sendRequest(ConsoleVersionHandler.generateRequest(counter.get()));
-        this.responseReceived.put(counter.incrementAndGet(), Boolean.FALSE);
-        myairtouchConnector.sendRequest(AirConditionerAbilityHandler.generateRequest(counter.get(), null));
+
+        if (counter.get() > 120) {
+            counter.set(0);
+        }
+
+        int nextRequestId = counter.incrementAndGet();
+        this.responseReceived.put(nextRequestId, Boolean.FALSE);
+        myairtouchConnector.sendRequest(GroupStatusHandler.generateRequest(nextRequestId, null));
+
+        nextRequestId = counter.incrementAndGet();
+        this.responseReceived.put(nextRequestId, Boolean.FALSE);
+        myairtouchConnector.sendRequest(GroupNameHandler.generateRequest(nextRequestId, null));
+
+        nextRequestId = counter.incrementAndGet();
+        this.responseReceived.put(nextRequestId, Boolean.FALSE);
+        myairtouchConnector.sendRequest(AirConditionerStatusHandler.generateRequest(nextRequestId, null));
+
+        nextRequestId = counter.incrementAndGet();
+        this.responseReceived.put(nextRequestId, Boolean.FALSE);
+        myairtouchConnector.sendRequest(ConsoleVersionHandler.generateRequest(nextRequestId));
+
+        nextRequestId = counter.incrementAndGet();
+        this.responseReceived.put(nextRequestId, Boolean.FALSE);
+        myairtouchConnector.sendRequest(AirConditionerAbilityHandler.generateRequest(nextRequestId, null));
     }
 
     @Override
@@ -80,8 +95,8 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
         myairtouchConnector.sendRequest(AirConditionerStatusHandler.generateRequest(counter.incrementAndGet(), null));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void handleEvent(final @Nullable Response response) {
+    @SuppressWarnings({ "unchecked" })
+    private void handleEvent(final @Nullable Response<MessageType> response) {
         if (response == null) {
             logger.trace("handlingEvent called with null response");
             return;
@@ -155,7 +170,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
 
     @Override
     public void shutdown() {
-        if (this.airtouchConnector.isRunning()) {
+        if (this.airtouchConnector != null && this.airtouchConnector.isRunning()) {
             this.airtouchConnector.shutdown();
         }
     }
