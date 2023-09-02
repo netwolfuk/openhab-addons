@@ -148,8 +148,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                 String.format("Error with connection  to '%s'. %s", myConfig.host, e.getMessage()));
         try {
-            this.airtouch4Service.shutdown();
-            this.airtouch4Service.start(myConfig.host, myConfig.port);
+            this.airtouch4Service.restart(myConfig.host, myConfig.port);
             this.airtouch4Service.requestFullUpdate();
         } catch (AirtouchMessagingException | IOException ex) {
             logger.warn(
@@ -255,7 +254,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
             scheduler.execute(() -> {
                 this.airtouch4Service.registerListener(this);
                 try {
-                    this.airtouch4Service.start(config.host, config.port);
+                    this.airtouch4Service.restart(config.host, config.port);
                     this.airtouch4Service.requestFullUpdate();
                 } catch (IOException | AirtouchMessagingException e) {
                     handleConnectionException(e, config);
