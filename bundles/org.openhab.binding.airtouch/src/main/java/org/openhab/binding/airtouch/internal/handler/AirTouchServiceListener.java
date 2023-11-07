@@ -5,8 +5,8 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.airtouch.internal.dto.AirtouchStatus;
 
-import airtouch.v4.model.AirConditionerStatusResponse;
-import airtouch.v4.model.GroupStatusResponse;
+import airtouch.model.AirConditionerStatusResponse;
+import airtouch.model.ZoneStatusResponse;
 
 public interface AirTouchServiceListener {
 
@@ -14,5 +14,5 @@ public interface AirTouchServiceListener {
 
     void airconditionerStatusUpdate(final @NonNull List<AirConditionerStatusResponse> acStatuses);
 
-    void zoneStatusUpdate(final @NonNull List<GroupStatusResponse> groupStatuses);
+    void zoneStatusUpdate(final @NonNull List<ZoneStatusResponse> groupStatuses);
 }

@@ -5,15 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import airtouch.v4.model.AirConditionerAbilityResponse;
-import airtouch.v4.model.AirConditionerStatusResponse;
-import airtouch.v4.model.ConsoleVersionResponse;
-import airtouch.v4.model.GroupStatusResponse;
+import airtouch.model.AirConditionerAbilityResponse;
+import airtouch.model.AirConditionerStatusResponse;
+import airtouch.model.ConsoleVersionResponse;
+import airtouch.model.ZoneStatusResponse;
 
 public class AirtouchStatus {
     private List<AirConditionerStatusResponse> acStatuses = new ArrayList<>();
     private Map<Integer, AirConditionerAbilityResponse> acAbilities = new HashMap<>();
-    private List<GroupStatusResponse> groupStatuses = new ArrayList<>();
+    private List<ZoneStatusResponse> groupStatuses = new ArrayList<>();
     private Map<Integer, String> groupNames = new HashMap<>();
     private ConsoleVersionResponse consoleVersion = null;
 
@@ -33,11 +33,11 @@ public class AirtouchStatus {
         this.acAbilities = acAbilities;
     }
 
-    public List<GroupStatusResponse> getGroupStatuses() {
+    public List<ZoneStatusResponse> getGroupStatuses() {
         return groupStatuses;
     }
 
-    public void setGroupStatuses(final List<GroupStatusResponse> groupStatuses) {
+    public void setGroupStatuses(final List<ZoneStatusResponse> groupStatuses) {
         this.groupStatuses = groupStatuses;
     }
 

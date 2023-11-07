@@ -60,21 +60,21 @@ import org.openhab.core.types.StateOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import airtouch.constant.AirConditionerControlConstants;
+import airtouch.constant.AirConditionerControlConstants.AcPower;
+import airtouch.constant.AirConditionerControlConstants.Mode;
+import airtouch.constant.AirConditionerControlConstants.SetpointControl;
+import airtouch.constant.AirConditionerStatusConstants;
+import airtouch.constant.ZoneControlConstants;
+import airtouch.constant.ZoneControlConstants.ZonePower;
+import airtouch.constant.ZoneControlConstants.ZoneSetting;
+import airtouch.constant.ZoneStatusConstants;
 import airtouch.exception.AirtouchMessagingException;
-import airtouch.v4.constant.AirConditionerControlConstants;
-import airtouch.v4.constant.AirConditionerControlConstants.AcPower;
-import airtouch.v4.constant.AirConditionerControlConstants.Mode;
-import airtouch.v4.constant.AirConditionerControlConstants.SetpointControl;
-import airtouch.v4.constant.AirConditionerStatusConstants;
-import airtouch.v4.constant.GroupControlConstants;
-import airtouch.v4.constant.GroupControlConstants.GroupPower;
-import airtouch.v4.constant.GroupControlConstants.GroupSetting;
-import airtouch.v4.constant.GroupStatusConstants;
+import airtouch.model.AirConditionerAbilityResponse;
+import airtouch.model.AirConditionerStatusResponse;
+import airtouch.model.ZoneStatusResponse;
 import airtouch.v4.handler.AirConditionerControlHandler;
 import airtouch.v4.handler.GroupControlHandler;
-import airtouch.v4.model.AirConditionerAbilityResponse;
-import airtouch.v4.model.AirConditionerStatusResponse;
-import airtouch.v4.model.GroupStatusResponse;
 import tech.units.indriya.unit.Units;
 
 /**
@@ -192,11 +192,11 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
         switch (channelUID.getIdWithoutGroup()) {
             case CHANNELUID_AIRCONDITIONER_ZONE_POWER:
                 if (command instanceof OnOffType) {
-                    GroupPower zonePowerState = convertToZonePower((OnOffType) command);
+                    ZonePower zonePowerState = convertToZonePower((OnOffType) command);
                     this.airtouch4Service.sendRequest(GroupControlHandler.requestBuilder(zoneNumber)
                             .power(zonePowerState).build(this.airtouch4Service.getNextRequestId()));
                 } else if (command instanceof StringType) {
-                    GroupPower zonePowerState = convertToZonePower((StringType) command);
+                    ZonePower zonePowerState = convertToZonePower((StringType) command);
                     this.airtouch4Service.validateZonePowerState(zoneNumber, zonePowerState);
                     this.airtouch4Service.sendRequest(GroupControlHandler.requestBuilder(zoneNumber)
                             .power(zonePowerState).build(this.airtouch4Service.getNextRequestId()));
@@ -207,7 +207,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                     int setpointValue = ((QuantityType<?>) command).intValue();
                     this.airtouch4Service.validateZoneSetpoint(zoneNumber, setpointValue);
                     this.airtouch4Service.sendRequest(
-                            GroupControlHandler.requestBuilder(zoneNumber).setting(GroupSetting.SET_TARGET_SETPOINT)
+                            GroupControlHandler.requestBuilder(zoneNumber).setting(ZoneSetting.SET_TARGET_SETPOINT)
                                     .settingValue(setpointValue).build(this.airtouch4Service.getNextRequestId()));
                 }
                 break;
@@ -220,13 +220,13 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                 : AirConditionerControlConstants.AcPower.POWER_OFF;
     }
 
-    private GroupPower convertToZonePower(OnOffType command) {
-        return command.equals(OnOffType.ON) ? GroupControlConstants.GroupPower.POWER_ON
-                : GroupControlConstants.GroupPower.POWER_OFF;
+    private ZonePower convertToZonePower(OnOffType command) {
+        return command.equals(OnOffType.ON) ? ZoneControlConstants.ZonePower.POWER_ON
+                : ZoneControlConstants.ZonePower.POWER_OFF;
     }
 
-    private GroupPower convertToZonePower(StringType command) {
-        return GroupControlConstants.GroupPower.valueOf(command.toFullString());
+    private ZonePower convertToZonePower(StringType command) {
+        return ZoneControlConstants.ZonePower.valueOf(command.toFullString());
     }
 
     @Override
@@ -517,12 +517,12 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
     }
 
     @Override
-    public void zoneStatusUpdate(final List<GroupStatusResponse> groupStatuses) {
+    public void zoneStatusUpdate(final List<ZoneStatusResponse> groupStatuses) {
         groupStatuses.forEach(zone -> {
             ChannelGroupUID channelGroupUID = new ChannelGroupUID(
-                    this.getThing().getUID() + ":ac-zone-" + zone.getGroupNumber());
+                    this.getThing().getUID() + ":ac-zone-" + zone.getZoneNumber());
             updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_ZONE_POWER),
-                    GroupStatusConstants.PowerState.ON.equals(zone.getPowerstate()) ? OnOffType.ON : OnOffType.OFF);
+                    ZoneStatusConstants.PowerState.ON.equals(zone.getPowerstate()) ? OnOffType.ON : OnOffType.OFF);
             logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),
                     CHANNELUID_AIRCONDITIONER_ZONE_POWER);
 
@@ -540,7 +540,7 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
              * If the install does not have the physical Zone Temperature devices, we can't determine the
              * Zone Temperature or the Device Battery Status.
              */
-            if (groupStatuses.get(zone.getGroupNumber()).hasSensor()) {
+            if (groupStatuses.get(zone.getZoneNumber()).hasSensor()) {
                 updateState(new ChannelUID(channelGroupUID, CHANNELUID_AIRCONDITIONER_ZONE_TEMPERATURE),
                         new DecimalType(zone.getCurrentTemperature()));
                 logger.trace("Updating channel: '{}:{}'", channelGroupUID.getAsString(),

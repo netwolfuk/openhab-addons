@@ -2,7 +2,7 @@ package org.openhab.binding.airtouch.internal;
 
 import org.openhab.binding.airtouch.internal.dto.AirtouchStatus;
 
-import airtouch.v4.model.AirConditionerAbilityResponse;
+import airtouch.model.AirConditionerAbilityResponse;
 
 public class AirTouchStatusUtil {
     private AirTouchStatusUtil() {
