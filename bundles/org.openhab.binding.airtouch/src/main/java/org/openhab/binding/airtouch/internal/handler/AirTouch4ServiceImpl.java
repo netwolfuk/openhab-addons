@@ -20,19 +20,21 @@ import org.slf4j.LoggerFactory;
 import airtouch.Request;
 import airtouch.Response;
 import airtouch.ResponseCallback;
-import airtouch.v4.connector.AirtouchConnector;
-import airtouch.v4.constant.AirConditionerControlConstants.Mode;
+import airtouch.connector.AirtouchConnector;
+import airtouch.connector.AirtouchConnectorThreadFactory;
+import airtouch.constant.AirConditionerControlConstants.Mode;
+import airtouch.constant.ZoneControlConstants.ZonePower;
+import airtouch.model.AirConditionerAbilityResponse;
+import airtouch.model.AirConditionerStatusResponse;
+import airtouch.model.ConsoleVersionResponse;
+import airtouch.model.ZoneNameResponse;
+import airtouch.v4.connector.Airtouch4ConnectorThreadFactory;
 import airtouch.v4.constant.GroupControlConstants.GroupPower;
-import airtouch.v4.constant.MessageConstants.MessageType;
 import airtouch.v4.handler.AirConditionerAbilityHandler;
 import airtouch.v4.handler.AirConditionerStatusHandler;
 import airtouch.v4.handler.ConsoleVersionHandler;
 import airtouch.v4.handler.GroupNameHandler;
 import airtouch.v4.handler.GroupStatusHandler;
-import airtouch.v4.model.AirConditionerAbilityResponse;
-import airtouch.v4.model.AirConditionerStatusResponse;
-import airtouch.v4.model.ConsoleVersionResponse;
-import airtouch.v4.model.GroupNameResponse;
 
 @NonNullByDefault
 public class AirTouch4ServiceImpl implements AirTouch4Service {
@@ -48,6 +50,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
     private @Nullable ScheduledFuture<?> future;
 
     private @Nullable AirTouchServiceListener airTouchServiceListener;
+    private AirtouchConnectorThreadFactory threadFactory = new Airtouch4ConnectorThreadFactory();
 
     @Override
     public void requestFullUpdate() throws IOException {
@@ -96,7 +99,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
     }
 
     @SuppressWarnings({ "unchecked" })
-    private void handleEvent(final @Nullable Response<MessageType> response) {
+    private void handleEvent(final @Nullable Response response) {
         if (response == null) {
             logger.trace("handlingEvent called with null response");
             return;
@@ -110,15 +113,15 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
                     this.airTouchServiceListener.airconditionerStatusUpdate(acStatuses);
                 }
                 break;
-            case GROUP_STATUS:
+            case ZONE_STATUS:
                 status.setGroupStatuses(response.getData());
                 if (this.gotConfigFromAirtouch.get() && this.airTouchServiceListener != null) {
                     this.airTouchServiceListener.zoneStatusUpdate(response.getData());
                 }
                 break;
-            case GROUP_NAME:
-                status.setGroupNames(((List<GroupNameResponse>) response.getData()).stream()
-                        .collect(Collectors.toMap(GroupNameResponse::getGroupNumber, GroupNameResponse::getName)));
+            case ZONE_NAME:
+                status.setGroupNames(((List<ZoneNameResponse>) response.getData()).stream()
+                        .collect(Collectors.toMap(ZoneNameResponse::getZoneNumber, ZoneNameResponse::getName)));
                 break;
             case AC_ABILITY:
                 status.setAcAbilities(((List<AirConditionerAbilityResponse>) response.getData()).stream()
@@ -129,7 +132,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
                 break;
             case EXTENDED:
                 break;
-            case GROUP_CONTROL:
+            case ZONE_CONTROL:
                 break;
             default:
                 break;
@@ -159,8 +162,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
 
     @Override
     public void start(@Nullable String host, int port) {
-        this.airtouchConnector = new AirtouchConnector(host, port, new ResponseCallback() {
-            @SuppressWarnings("rawtypes")
+        this.airtouchConnector = new AirtouchConnector(threadFactory, host, port, new ResponseCallback() {
             public void handleResponse(@Nullable Response response) {
                 handleEvent(response);
             }
@@ -220,8 +222,8 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
     }
 
     @Override
-    public void validateZonePowerState(int zoneNumber, GroupPower zonePowerState) throws IllegalArgumentException {
-        if (GroupPower.TURBO_POWER.equals(zonePowerState)
+    public void validateZonePowerState(int zoneNumber, ZonePower zonePowerState) throws IllegalArgumentException {
+        if (GroupPower.TURBO_POWER.getGeneric().equals(zonePowerState)
                 && !this.status.getGroupStatuses().get(zoneNumber).isTurboSupported()) {
             throw new IllegalArgumentException(String.format("'%s' is not supported for Zone '%s' (%s)", zonePowerState,
                     this.status.getGroupNames().get(zoneNumber), zoneNumber));
