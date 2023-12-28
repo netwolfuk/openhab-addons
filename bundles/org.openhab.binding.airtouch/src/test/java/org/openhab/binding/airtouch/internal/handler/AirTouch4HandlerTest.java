@@ -49,8 +49,8 @@ class AirTouch4HandlerTest {
     void testHandlePowerOnZone0Command() throws IOException {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"), OnOffType.ON);
 
-        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_ON)
-                .build(this.airTouch4Service.getNextRequestId());
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0)
+                .power(ZoneControlConstants.ZonePower.POWER_ON).build(this.airTouch4Service.getNextRequestId());
 
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
         assertEquals(MessageType.GROUP_CONTROL, requestCaptor.getValue().getMessageType());
@@ -64,8 +64,8 @@ class AirTouch4HandlerTest {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"),
                 new StringType("POWER_ON"));
 
-        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_ON)
-                .build(this.airTouch4Service.getNextRequestId());
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0)
+                .power(ZoneControlConstants.ZonePower.POWER_ON).build(this.airTouch4Service.getNextRequestId());
 
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
         assertEquals(MessageType.GROUP_CONTROL, requestCaptor.getValue().getMessageType());
@@ -78,8 +78,8 @@ class AirTouch4HandlerTest {
     void testHandlePowerOffZone0Command() throws IOException {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"), OnOffType.OFF);
 
-        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_OFF)
-                .build(this.airTouch4Service.getNextRequestId());
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0)
+                .power(ZoneControlConstants.ZonePower.POWER_OFF).build(this.airTouch4Service.getNextRequestId());
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
         assertEquals(MessageType.GROUP_CONTROL, requestCaptor.getValue().getMessageType());
         assertEquals(100, requestCaptor.getValue().getMessageId());
@@ -92,8 +92,8 @@ class AirTouch4HandlerTest {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"),
                 new StringType("POWER_OFF"));
 
-        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_OFF)
-                .build(this.airTouch4Service.getNextRequestId());
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0)
+                .power(ZoneControlConstants.ZonePower.POWER_OFF).build(this.airTouch4Service.getNextRequestId());
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
         assertEquals(MessageType.GROUP_CONTROL, requestCaptor.getValue().getMessageType());
         assertEquals(100, requestCaptor.getValue().getMessageId());
@@ -106,8 +106,8 @@ class AirTouch4HandlerTest {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"),
                 new StringType("TURBO_POWER"));
 
-        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.TURBO_POWER)
-                .build(this.airTouch4Service.getNextRequestId());
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0)
+                .power(ZoneControlConstants.ZonePower.TURBO_POWER).build(this.airTouch4Service.getNextRequestId());
 
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
         assertEquals(MessageType.GROUP_CONTROL, requestCaptor.getValue().getMessageType());

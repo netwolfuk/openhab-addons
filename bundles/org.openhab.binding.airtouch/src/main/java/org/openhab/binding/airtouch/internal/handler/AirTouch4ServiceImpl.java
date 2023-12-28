@@ -29,8 +29,8 @@ import airtouch.model.AirConditionerStatusResponse;
 import airtouch.model.ConsoleVersionResponse;
 import airtouch.model.ZoneNameResponse;
 import airtouch.v4.connector.Airtouch4ConnectorThreadFactory;
-import airtouch.v4.constant.MessageConstants;
 import airtouch.v4.constant.GroupControlConstants.GroupPower;
+import airtouch.v4.constant.MessageConstants;
 import airtouch.v4.handler.AirConditionerAbilityHandler;
 import airtouch.v4.handler.AirConditionerStatusHandler;
 import airtouch.v4.handler.ConsoleVersionHandler;
@@ -163,11 +163,12 @@ public class AirTouch4ServiceImpl implements AirTouchService<MessageConstants.Ad
 
     @Override
     public void start(@Nullable String host, int port) {
-        this.airtouchConnector = new AirtouchConnector<MessageConstants.Address>(threadFactory, host, port, new ResponseCallback() {
-            public void handleResponse(@Nullable Response response) {
-                handleEvent(response);
-            }
-        });
+        this.airtouchConnector = new AirtouchConnector<MessageConstants.Address>(threadFactory, host, port,
+                new ResponseCallback() {
+                    public void handleResponse(@Nullable Response response) {
+                        handleEvent(response);
+                    }
+                });
         this.airtouchConnector.start();
     }
 
