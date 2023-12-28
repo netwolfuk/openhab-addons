@@ -29,6 +29,7 @@ import airtouch.model.AirConditionerStatusResponse;
 import airtouch.model.ConsoleVersionResponse;
 import airtouch.model.ZoneNameResponse;
 import airtouch.v4.connector.Airtouch4ConnectorThreadFactory;
+import airtouch.v4.constant.MessageConstants;
 import airtouch.v4.constant.GroupControlConstants.GroupPower;
 import airtouch.v4.handler.AirConditionerAbilityHandler;
 import airtouch.v4.handler.AirConditionerStatusHandler;
@@ -37,11 +38,11 @@ import airtouch.v4.handler.GroupNameHandler;
 import airtouch.v4.handler.GroupStatusHandler;
 
 @NonNullByDefault
-public class AirTouch4ServiceImpl implements AirTouch4Service {
+public class AirTouch4ServiceImpl implements AirTouchService<MessageConstants.Address> {
 
     private final Logger logger = LoggerFactory.getLogger(AirTouch4ServiceImpl.class);
 
-    private @Nullable AirtouchConnector airtouchConnector;
+    private @Nullable AirtouchConnector<MessageConstants.Address> airtouchConnector;
 
     private AirtouchStatus status = new AirtouchStatus();
     private Map<Integer, Boolean> responseReceived = new HashMap<>();
@@ -58,7 +59,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
             logger.trace("AirtouchConnector is not yet initialised. Skipping requestFullUpdate");
             return;
         }
-        final AirtouchConnector myairtouchConnector = this.airtouchConnector;
+        final AirtouchConnector<MessageConstants.Address> myairtouchConnector = this.airtouchConnector;
         this.gotConfigFromAirtouch.set(false);
         this.responseReceived.clear();
 
@@ -93,7 +94,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
             logger.trace("AirtouchConnector is not yet initialised. Skipping requestStatusUpdate");
             return;
         }
-        final AirtouchConnector myairtouchConnector = this.airtouchConnector;
+        final AirtouchConnector<MessageConstants.Address> myairtouchConnector = this.airtouchConnector;
         myairtouchConnector.sendRequest(GroupStatusHandler.generateRequest(counter.incrementAndGet(), null));
         myairtouchConnector.sendRequest(AirConditionerStatusHandler.generateRequest(counter.incrementAndGet(), null));
     }
@@ -162,7 +163,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
 
     @Override
     public void start(@Nullable String host, int port) {
-        this.airtouchConnector = new AirtouchConnector(threadFactory, host, port, new ResponseCallback() {
+        this.airtouchConnector = new AirtouchConnector<MessageConstants.Address>(threadFactory, host, port, new ResponseCallback() {
             public void handleResponse(@Nullable Response response) {
                 handleEvent(response);
             }
@@ -184,7 +185,7 @@ public class AirTouch4ServiceImpl implements AirTouch4Service {
     }
 
     @Override
-    public void sendRequest(@NonNull Request airTouchRequest) throws IOException {
+    public void sendRequest(@NonNull Request<MessageConstants.Address> airTouchRequest) throws IOException {
         this.airtouchConnector.sendRequest(airTouchRequest);
     }
 

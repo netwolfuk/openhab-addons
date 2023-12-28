@@ -73,6 +73,7 @@ import airtouch.exception.AirtouchMessagingException;
 import airtouch.model.AirConditionerAbilityResponse;
 import airtouch.model.AirConditionerStatusResponse;
 import airtouch.model.ZoneStatusResponse;
+import airtouch.v4.constant.MessageConstants;
 import airtouch.v4.handler.AirConditionerControlHandler;
 import airtouch.v4.handler.GroupControlHandler;
 import tech.units.indriya.unit.Units;
@@ -88,12 +89,12 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
 
     private final Logger logger = LoggerFactory.getLogger(AirTouch4Handler.class);
 
-    private final AirTouch4Service airtouch4Service;
+    private final AirTouchService<MessageConstants.Address> airtouch4Service;
     private final AirTouchStateDescriptionFragmentCache stateDescriptionFragmentCache;
 
     private @Nullable ScheduledFuture<?> future;
 
-    public AirTouch4Handler(Thing thing, AirTouch4Service airTouch4Service,
+    public AirTouch4Handler(Thing thing, AirTouchService<MessageConstants.Address> airTouch4Service,
             AirTouchStateDescriptionFragmentCache stateDescriptionFragmentCache) {
         super(thing);
         this.airtouch4Service = airTouch4Service;

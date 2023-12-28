@@ -19,7 +19,7 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.airtouch.internal.handler.AirTouch4Handler;
-import org.openhab.binding.airtouch.internal.handler.AirTouch4Service;
+import org.openhab.binding.airtouch.internal.handler.AirTouchService;
 import org.openhab.binding.airtouch.internal.handler.AirTouch4ServiceImpl;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
@@ -62,7 +62,7 @@ public class AirTouchHandlerFactory extends BaseThingHandlerFactory {
 
         if (AIRTOUCH4_CONTROLLER_THING_TYPE.equals(thingTypeUID)) {
             logger.debug("Creating AirTouchAirConditionerHandler for '{}'", thing.getThingTypeUID());
-            AirTouch4Service airTouch4Service = new AirTouch4ServiceImpl();
+            AirTouchService<airtouch.v4.constant.MessageConstants.Address> airTouch4Service = new AirTouch4ServiceImpl();
             return new AirTouch4Handler(thing, airTouch4Service, this.dynamicStateDescriptionProvider);
         }
 

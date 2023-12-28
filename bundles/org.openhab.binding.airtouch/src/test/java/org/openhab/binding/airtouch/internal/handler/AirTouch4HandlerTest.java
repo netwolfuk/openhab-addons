@@ -22,6 +22,7 @@ import org.openhab.core.thing.binding.ThingHandlerCallback;
 
 import airtouch.Request;
 import airtouch.constant.ZoneControlConstants;
+import airtouch.v4.constant.MessageConstants;
 import airtouch.v4.constant.MessageConstants.Address;
 import airtouch.v4.constant.MessageConstants.MessageType;
 import airtouch.v4.handler.GroupControlHandler;
@@ -31,11 +32,11 @@ class AirTouch4HandlerTest {
 
     private @Mock ThingHandlerCallback callbackMock;
     private @Mock Thing thingMock;
-    private @Mock AirTouch4Service airTouch4Service;
+    private @Mock AirTouchService<MessageConstants.Address> airTouch4Service;
     private ChannelGroupUID acZone0ChannelGroupUID = new ChannelGroupUID(
             "airtouch:airtouch4-controller:mac_address:ac-zone-0");
     private AirTouch4Handler handler;
-    private ArgumentCaptor<Request> requestCaptor;
+    private ArgumentCaptor<Request<MessageConstants.Address>> requestCaptor;
 
     @BeforeEach
     public void setupClass() {
@@ -48,7 +49,7 @@ class AirTouch4HandlerTest {
     void testHandlePowerOnZone0Command() throws IOException {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"), OnOffType.ON);
 
-        Request request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_ON)
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_ON)
                 .build(this.airTouch4Service.getNextRequestId());
 
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
@@ -63,7 +64,7 @@ class AirTouch4HandlerTest {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"),
                 new StringType("POWER_ON"));
 
-        Request request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_ON)
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_ON)
                 .build(this.airTouch4Service.getNextRequestId());
 
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
@@ -77,7 +78,7 @@ class AirTouch4HandlerTest {
     void testHandlePowerOffZone0Command() throws IOException {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"), OnOffType.OFF);
 
-        Request request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_OFF)
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_OFF)
                 .build(this.airTouch4Service.getNextRequestId());
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
         assertEquals(MessageType.GROUP_CONTROL, requestCaptor.getValue().getMessageType());
@@ -91,7 +92,7 @@ class AirTouch4HandlerTest {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"),
                 new StringType("POWER_OFF"));
 
-        Request request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_OFF)
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.POWER_OFF)
                 .build(this.airTouch4Service.getNextRequestId());
         verify(airTouch4Service).sendRequest(requestCaptor.capture());
         assertEquals(MessageType.GROUP_CONTROL, requestCaptor.getValue().getMessageType());
@@ -105,7 +106,7 @@ class AirTouch4HandlerTest {
         handler.handleCommand(new ChannelUID(acZone0ChannelGroupUID, "airconditioner-zone-power"),
                 new StringType("TURBO_POWER"));
 
-        Request request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.TURBO_POWER)
+        Request<MessageConstants.Address> request = GroupControlHandler.requestBuilder(0).power(ZoneControlConstants.ZonePower.TURBO_POWER)
                 .build(this.airTouch4Service.getNextRequestId());
 
         verify(airTouch4Service).sendRequest(requestCaptor.capture());

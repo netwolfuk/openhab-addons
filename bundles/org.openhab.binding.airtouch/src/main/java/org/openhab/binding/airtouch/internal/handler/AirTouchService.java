@@ -9,7 +9,7 @@ import airtouch.Request;
 import airtouch.constant.AirConditionerControlConstants.Mode;
 import airtouch.constant.ZoneControlConstants.ZonePower;
 
-public interface AirTouch4Service {
+public interface AirTouchService<A> {
 
     /**
      * Start service and create a connection to AirTouch using the host and port provided.
@@ -43,7 +43,7 @@ public interface AirTouch4Service {
     void registerListener(@NonNull AirTouchServiceListener airTouchServiceListener);
 
     /**
-     * Get the next requestId from the internal counter maintained by {@link AirTouch4Service}
+     * Get the next requestId from the internal counter maintained by {@link AirTouchService}
      * It's useful to provide a different ID for each request to the Airtouch, so that we can
      * identify the response.
      *
@@ -58,7 +58,7 @@ public interface AirTouch4Service {
      * @param airTouchRequest
      * @throws IOException if AirTouch cannot be contacted.
      */
-    void sendRequest(@NonNull Request airTouchRequest) throws IOException;
+    void sendRequest(@NonNull Request<A> airTouchRequest) throws IOException;
 
     /**
      * Requests a full update from AirTouch. This includes "configurations", eg, AC Names, Zone Names, Error Code,
