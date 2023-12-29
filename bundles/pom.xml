@@ -8,17 +8,9 @@
     <groupId>org.openhab.addons</groupId>
         
     <artifactId>org.openhab.addons.reactor</artifactId>
-<<<<<<< HEAD
-    <version>4.2.0-SNAPSHOT</version>
-=======
-<<<<<<< HEAD
-    <version>4.1.0-SNAPSHOT</version>
-=======
         
-    <version>3.4.0-SNAPSHOT</version>
+    <version>4.1.0-SNAPSHOT</version>
       
->>>>>>> b88bce6965 (Empty binding creation)
->>>>>>> f1b73feb17 (Empty binding creation)
   </parent>
     
   <groupId>org.openhab.addons.bundles</groupId>
@@ -38,11 +30,7 @@
     <module>org.openhab.automation.jrubyscripting</module>
         
     <module>org.openhab.automation.jsscripting</module>
-<<<<<<< HEAD
     <module>org.openhab.automation.jsscriptingnashorn</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.automation.jythonscripting</module>
         
     <module>org.openhab.automation.pidcontroller</module>
@@ -54,12 +42,8 @@
     <module>org.openhab.io.homekit</module>
         
     <module>org.openhab.io.hueemulation</module>
-<<<<<<< HEAD
-=======
         
-    <module>org.openhab.io.imperihome</module>
         
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.io.metrics</module>
         
     <module>org.openhab.io.neeo</module>
@@ -71,12 +55,8 @@
     <module>org.openhab.transform.bin2json</module>
         
     <module>org.openhab.transform.exec</module>
-<<<<<<< HEAD
-=======
         
-    <module>org.openhab.transform.javascript</module>
         
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.transform.jinja</module>
         
     <module>org.openhab.transform.jsonpath</module>
@@ -84,15 +64,9 @@
     <module>org.openhab.transform.map</module>
         
     <module>org.openhab.transform.regex</module>
-<<<<<<< HEAD
     <module>org.openhab.transform.rollershutterposition</module>
     <module>org.openhab.transform.scale</module>
     <module>org.openhab.transform.vat</module>
-=======
-        
-    <module>org.openhab.transform.scale</module>
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.transform.xpath</module>
         
     <module>org.openhab.transform.xslt</module>
@@ -106,7 +80,7 @@
     <module>org.openhab.binding.airq</module>
         
     <module>org.openhab.binding.airquality</module>
-    <module>org.openhab.binding.airtouch</module>
+    <module>org.openhab.binding.airtouch4</module>
         
     <module>org.openhab.binding.airvisualnode</module>
         
@@ -123,19 +97,11 @@
     <module>org.openhab.binding.amplipi</module>
         
     <module>org.openhab.binding.androiddebugbridge</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.androidtv</module>
     <module>org.openhab.binding.anel</module>
     <module>org.openhab.binding.anthem</module>
     <module>org.openhab.binding.astro</module>
     <module>org.openhab.binding.asuswrt</module>
-=======
-        
-    <module>org.openhab.binding.anel</module>
-        
-    <module>org.openhab.binding.astro</module>
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.atlona</module>
         
     <module>org.openhab.binding.autelis</module>
@@ -169,20 +135,12 @@
     <module>org.openhab.binding.bluetooth.generic</module>
         
     <module>org.openhab.binding.bluetooth.govee</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.bluetooth.grundfosalpha</module>
     <module>org.openhab.binding.bluetooth.radoneye</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.bluetooth.roaming</module>
         
     <module>org.openhab.binding.bluetooth.ruuvitag</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.bondhome</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.boschindego</module>
         
     <module>org.openhab.binding.boschshc</module>
@@ -200,11 +158,7 @@
     <module>org.openhab.binding.caddx</module>
         
     <module>org.openhab.binding.cbus</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.chatgpt</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.chromecast</module>
         
     <module>org.openhab.binding.cm11a</module>
@@ -220,12 +174,8 @@
     <module>org.openhab.binding.dali</module>
         
     <module>org.openhab.binding.danfossairunit</module>
-<<<<<<< HEAD
-=======
         
-    <module>org.openhab.binding.darksky</module>
         
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.dbquery</module>
         
     <module>org.openhab.binding.deconz</module>
@@ -255,21 +205,13 @@
     <module>org.openhab.binding.dwdpollenflug</module>
         
     <module>org.openhab.binding.dwdunwetter</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.easee</module>
     <module>org.openhab.binding.echonetlite</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.ecobee</module>
         
     <module>org.openhab.binding.ecotouch</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.ecovacs</module>
     <module>org.openhab.binding.ecowatt</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.ekey</module>
         
     <module>org.openhab.binding.electroluxair</module>
@@ -279,11 +221,7 @@
     <module>org.openhab.binding.elroconnects</module>
         
     <module>org.openhab.binding.energenie</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.energidataservice</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.enigma2</module>
         
     <module>org.openhab.binding.enocean</module>
@@ -319,11 +257,7 @@
     <module>org.openhab.binding.foobot</module>
         
     <module>org.openhab.binding.freebox</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.freeboxos</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.fronius</module>
         
     <module>org.openhab.binding.fsinternetradio</module>
@@ -337,11 +271,7 @@
     <module>org.openhab.binding.generacmobilelink</module>
         
     <module>org.openhab.binding.goecharger</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.govee</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.gpio</module>
         
     <module>org.openhab.binding.globalcache</module>
@@ -401,12 +331,8 @@
     <module>org.openhab.binding.icloud</module>
         
     <module>org.openhab.binding.ihc</module>
-<<<<<<< HEAD
-=======
         
-    <module>org.openhab.binding.innogysmarthome</module>
         
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.insteon</module>
         
     <module>org.openhab.binding.ipcamera</module>
@@ -428,11 +354,7 @@
     <module>org.openhab.binding.jeelink</module>
         
     <module>org.openhab.binding.jellyfin</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.juicenet</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.kaleidescape</module>
         
     <module>org.openhab.binding.keba</module>
@@ -466,11 +388,7 @@
     <module>org.openhab.binding.linky</module>
         
     <module>org.openhab.binding.linuxinput</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.liquidcheck</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.lirc</module>
         
     <module>org.openhab.binding.livisismarthome</module>
@@ -478,12 +396,8 @@
     <module>org.openhab.binding.logreader</module>
         
     <module>org.openhab.binding.loxone</module>
-<<<<<<< HEAD
-=======
         
-    <module>org.openhab.binding.luftdateninfo</module>
         
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.lutron</module>
         
     <module>org.openhab.binding.luxom</module>
@@ -497,19 +411,11 @@
     <module>org.openhab.binding.max</module>
         
     <module>org.openhab.binding.mcp23017</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.meater</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.mecmeter</module>
         
     <module>org.openhab.binding.melcloud</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.mercedesme</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.meteoalerte</module>
         
     <module>org.openhab.binding.meteoblue</module>
@@ -559,21 +465,13 @@
     <module>org.openhab.binding.mqtt.homeassistant</module>
         
     <module>org.openhab.binding.mqtt.homie</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.mqtt.ruuvigateway</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.mybmw</module>
         
     <module>org.openhab.binding.mycroft</module>
-<<<<<<< HEAD
+        
     <module>org.openhab.binding.mynice</module>
-=======
         
-    <module>org.openhab.binding.myq</module>
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.mystrom</module>
         
     <module>org.openhab.binding.nanoleaf</module>
@@ -599,11 +497,7 @@
     <module>org.openhab.binding.nikobus</module>
         
     <module>org.openhab.binding.nikohomecontrol</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.nobohub</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.novafinedust</module>
         
     <module>org.openhab.binding.ntp</module>
@@ -665,11 +559,7 @@
     <module>org.openhab.binding.playstation</module>
         
     <module>org.openhab.binding.plclogo</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.plex</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.plugwise</module>
         
     <module>org.openhab.binding.plugwiseha</module>
@@ -691,11 +581,7 @@
     <module>org.openhab.binding.pushsafer</module>
         
     <module>org.openhab.binding.qbus</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.qolsysiq</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.radiothermostat</module>
         
     <module>org.openhab.binding.regoheatpump</module>
@@ -735,11 +621,7 @@
     <module>org.openhab.binding.sensebox</module>
         
     <module>org.openhab.binding.sensibo</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.sensorcommunity</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.serial</module>
         
     <module>org.openhab.binding.serialbutton</module>
@@ -757,18 +639,12 @@
     <module>org.openhab.binding.smaenergymeter</module>
         
     <module>org.openhab.binding.smartmeter</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.smartthings</module>
     <module>org.openhab.binding.smgw</module>
     <module>org.openhab.binding.smhi</module>
+        
     <module>org.openhab.binding.smsmodem</module>
-=======
         
-    <module>org.openhab.binding.smhi</module>
-        
-    <module>org.openhab.binding.smartthings</module>
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.sncf</module>
         
     <module>org.openhab.binding.snmp</module>
@@ -776,15 +652,9 @@
     <module>org.openhab.binding.solaredge</module>
         
     <module>org.openhab.binding.solarlog</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.solarmax</module>
     <module>org.openhab.binding.solarwatt</module>
     <module>org.openhab.binding.solax</module>
-=======
-        
-    <module>org.openhab.binding.solarwatt</module>
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.somfymylink</module>
         
     <module>org.openhab.binding.somfytahoma</module>
@@ -798,11 +668,7 @@
     <module>org.openhab.binding.sonyprojector</module>
         
     <module>org.openhab.binding.souliss</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.speedtest</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.spotify</module>
         
     <module>org.openhab.binding.squeezebox</module>
@@ -820,11 +686,7 @@
     <module>org.openhab.binding.tankerkoenig</module>
         
     <module>org.openhab.binding.tapocontrol</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.tasmotaplug</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.telegram</module>
         
     <module>org.openhab.binding.teleinfo</module>
@@ -838,22 +700,14 @@
     <module>org.openhab.binding.tivo</module>
         
     <module>org.openhab.binding.touchwand</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.tplinkrouter</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.tplinksmarthome</module>
         
     <module>org.openhab.binding.tr064</module>
         
     <module>org.openhab.binding.tradfri</module>
-<<<<<<< HEAD
-=======
         
-    <module>org.openhab.binding.twitter</module>
         
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.unifi</module>
         
     <module>org.openhab.binding.unifiedremote</module>
@@ -885,25 +739,15 @@
     <module>org.openhab.binding.vigicrues</module>
         
     <module>org.openhab.binding.vitotronic</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.vizio</module>
     <module>org.openhab.binding.volvooncall</module>
     <module>org.openhab.binding.volumio</module>
-=======
-        
-    <module>org.openhab.binding.volvooncall</module>
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.warmup</module>
         
     <module>org.openhab.binding.weathercompany</module>
         
     <module>org.openhab.binding.weatherunderground</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.webexteams</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.webthing</module>
         
     <module>org.openhab.binding.wemo</module>
@@ -919,11 +763,7 @@
     <module>org.openhab.binding.wolfsmartset</module>
         
     <module>org.openhab.binding.wundergroundupdatereceiver</module>
-<<<<<<< HEAD
     <module>org.openhab.binding.x</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.binding.xmltv</module>
         
     <module>org.openhab.binding.xmppclient</module>
@@ -945,11 +785,7 @@
     <module>org.openhab.persistence.dynamodb</module>
         
     <module>org.openhab.persistence.influxdb</module>
-<<<<<<< HEAD
     <module>org.openhab.persistence.inmemory</module>
-=======
-        
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.persistence.jdbc</module>
         
     <module>org.openhab.persistence.jpa</module>
@@ -969,22 +805,13 @@
     <module>org.openhab.voice.mactts</module>
         
     <module>org.openhab.voice.marytts</module>
-<<<<<<< HEAD
-    <module>org.openhab.voice.mimictts</module>
-=======
         
-    <module>org.openhab.voice.actiontemplatehli</module>
         
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.voice.picotts</module>
         
     <module>org.openhab.voice.pollytts</module>
-<<<<<<< HEAD
-=======
         
-    <module>org.openhab.voice.porcupineks</module>
         
->>>>>>> b88bce6965 (Empty binding creation)
     <module>org.openhab.voice.rustpotterks</module>
         
     <module>org.openhab.voice.voicerss</module>
@@ -1209,11 +1036,7 @@
                   <descriptor>mvn:org.apache.karaf.features/framework/${karaf.version}/xml/features</descriptor>
                                     
                   <descriptor>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</descriptor>
-<<<<<<< HEAD
                   <descriptor>mvn:org.apache.karaf.features/specs/${karaf.version}/xml/features</descriptor>
-=======
-                                    
->>>>>>> b88bce6965 (Empty binding creation)
                   <!-- Current feature under verification -->
                                     
                   <descriptor>file:${project.build.directory}/feature/feature.xml</descriptor>
@@ -1303,13 +1126,9 @@
         <groupId>org.apache.maven.plugins</groupId>
                 
         <artifactId>maven-dependency-plugin</artifactId>
-<<<<<<< HEAD
+                
         <version>3.6.0</version>
-=======
                 
-        <version>3.1.1</version>
-                
->>>>>>> b88bce6965 (Empty binding creation)
         <executions>
                     
           <execution>
