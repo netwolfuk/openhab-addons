@@ -82,8 +82,9 @@
     <module>org.openhab.binding.airq</module>
         
     <module>org.openhab.binding.airquality</module>
+
     <module>org.openhab.binding.airtouch</module>
-        
+
     <module>org.openhab.binding.airvisualnode</module>
         
     <module>org.openhab.binding.alarmdecoder</module>
