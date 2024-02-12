@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * as State for Channels.
  * <p>
  *
- * OpenHab as the concept of a StateDescription. This is what is defined in the <code>thing-types.xml</code> file
+ * OpenHab has the concept of a StateDescription. This is what is defined in the <code>thing-types.xml</code> file
  * under the "state" xml tag.
  * eg.
  * <code>&lt;state step="1" pattern="%d °C" readOnly="true"/&gt;</code>
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * after
  * reading the AirTouch config.
  * <p>
- * These StateDescriptionFragments are stored inside this service. When OpenHab later asked for a StateDescription, it
+ * These StateDescriptionFragments are stored inside this service. When OpenHab later asks for a StateDescription, it
  * passes in the one
  * it read from our thing-types.xml. In some cases we want to enhance this StateDescription with a
  * StateDescriptionFragment we created in

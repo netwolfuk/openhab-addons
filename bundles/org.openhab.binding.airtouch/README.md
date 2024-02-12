@@ -1,4 +1,4 @@
-# AirTouch4 Binding
+# AirTouch Binding
 
 _Give some details about what this binding is meant for - a protocol, system, specific device._
 
@@ -53,7 +53,7 @@ _Note that it is planned to generate some part of this based on the XML files wi
 |-----------------|---------|---------------------------------------|---------|----------|----------|
 | hostname        | text    | Hostname or IP address of the device  | N/A     | yes      | no       |
 | password        | text    | Password to access the device         | N/A     | yes      | no       |
-| refreshInterval | integer | Interval the device is polled in sec. | 600     | no       | yes      |
+| refreshInterval | integer | Interval the device is polled in sec. | 60      | no       | yes      |
 
 ## Channels
 
