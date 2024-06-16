@@ -185,7 +185,9 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                             .acMode(acMode).build(this.airtouch4Service.getNextRequestId()));
                 }
                 break;
+            default:
         }
+        logger.debug("unitCommand was '{}' for unitNumber '{}' of type '{}'", channelUID.getIdWithoutGroup(), unitNumber, command.getClass());
     }
 
     private void handleZoneCommand(ChannelUID channelUID, Command command) throws IOException {
@@ -212,8 +214,8 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                                     .settingValue(setpointValue).build(this.airtouch4Service.getNextRequestId()));
                 }
                 break;
-
         }
+        logger.debug("zoneCommand was '{}' for unitNumber '{}' of type '{}'", channelUID.getIdWithoutGroup(), zoneNumber, command.getClass());
     }
 
     private AcPower convertToAcPower(OnOffType command) {
