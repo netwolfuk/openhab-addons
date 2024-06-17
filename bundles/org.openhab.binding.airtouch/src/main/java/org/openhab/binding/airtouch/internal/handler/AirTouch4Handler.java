@@ -185,7 +185,6 @@ public class AirTouch4Handler extends BaseThingHandler implements AirTouchServic
                             .acMode(acMode).build(this.airtouch4Service.getNextRequestId()));
                 }
                 break;
-            default:
         }
         logger.debug("unitCommand was '{}' for unitNumber '{}' of type '{}'", channelUID.getIdWithoutGroup(),
                 unitNumber, command.getClass());
